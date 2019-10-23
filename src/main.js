@@ -4,9 +4,18 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import * as $http from './requests'
-import { Area } from 'vant'
+import store from './store'
+import { Uploader, Area, Toast, Icon, GoodsActionIcon, Overlay, Search, Tab, Tabs, Stepper } from 'vant'
 
+Vue.use(Toast)
+Vue.use(Uploader)
 Vue.use(Area)
+Vue.use(Icon)
+Vue.use(GoodsActionIcon)
+Vue.use(Overlay)
+Vue.use(Search)
+Vue.use(Stepper)
+Vue.use(Tab).use(Tabs)
 
 Vue.prototype.$http = $http
 Vue.config.productionTip = false
@@ -16,6 +25,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

@@ -1,30 +1,39 @@
 <template>
   <div id="app">
-    <van-area :area-list="areaList"
-              :columns-placeholder="['请选择', '请选择', '请选择']"
-              title="地址选择" />
-    <router-view />
+    <div class="app-header">
+      <b-header>
+        <router-view></router-view>
+      </b-header>
+    </div>
+    <div class="app-main">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
-import areaList from "@/data/area";
+import BHeader from './components/b-header/b-header'
 export default {
   name: 'App',
   data () {
     return {
-      areaList
     }
+  },
+  components: {
+    BHeader
+  },
+  methods: {
+
   }
 }
 </script>
 
 <style lang="scss">
-
 @charset "utf-8";
+
 $rem-base-font-size: 100px;
 // UI设计图的分辨率宽度
-$UI-width: 750px;
+$UI-width: 375px;
 // 需要适配的屏幕宽度
 $device-widths: 240px, 320px, 360px, 375px, 384px, 411px, 414px, 424px, 480px,
   540px, 640px, 720px, 750px, 768px, 800px, 980px, 1024px, 1080px, 1152px,
@@ -45,6 +54,7 @@ html {
   -webkit-touch-callout: none; // 禁止长按系统默认菜单
   list-style-type: none;
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -53,11 +63,13 @@ body {
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
+  overflow: hidden;
 }
 
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 input,
@@ -73,6 +85,10 @@ ol {
   list-style: none;
 }
 
+i,
+em {
+  font-style: normal;
+}
 table {
   border-collapse: collapse;
   border-spacing: 0;
@@ -106,5 +122,34 @@ button {
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
   outline: none; /* android上防止点击时出现外框 */
+  border: 0;
+  background: inherit;
+  cursor: pointer;
+}
+
+input::-webkit-input-placeholder {
+  /* placeholder颜色  */
+  color: #909090;
+  /* placeholder字体大小  */
+  font-size: 0.12rem;
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: PingFangSC-Regular, PingFangSC-Semibold, PingFang SC;
+  font-size: 0.14rem;
+  font-weight: 400;
+
+  .app-header {
+    height: 0.44rem;
+    border-bottom: 1px solid #f1f4fb;
+  }
+
+  .app-main {
+    flex: 1;
+    overflow: hidden auto;
+  }
 }
 </style>
