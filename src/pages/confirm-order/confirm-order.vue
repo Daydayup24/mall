@@ -2,11 +2,19 @@
   <div class="confirm">
     <div class="confirm-order">
       <div class="contact-warp">
-        <div class="contact">
-          <span>王先生</span>
-          <i>13883423756</i>
+        <div v-if="haveAddress"
+             @click="chooseAddress">
+          <div class="contact">
+            <span>{{nowAddressInfo.name}}</span>
+            <i>{{nowAddressInfo.phone}}</i>
+          </div>
+          <div :class="nowAddressInfo.default==1 ? 'default-address' : 'address'">{{nowAddressInfo.province}} {{nowAddressInfo.city}} {{nowAddressInfo.area}} {{nowAddressInfo.address}}</div>
         </div>
-        <div class="address">四川省 成都市 武侯区 贵溪街道 天府三街118号天合凯旋广场</div>
+        <div class="add-address"
+             @click="addAddress"
+             v-else>
+          <span>添加地址</span>
+        </div>
         <p class="line"></p>
         <div class="icon">
           <van-icon name="arrow"
@@ -14,8 +22,8 @@
         </div>
       </div>
       <div class="order-shop">
-        <div class="item-header">
-          <div class="shop-avatar"></div>
+        <div class="item-header"> 
+          <!-- <div class="shop-avatar"></div> -->
           <div class="shop-name">奔跑的蜗牛</div>
           <div class="right">
             <van-icon name="arrow"
@@ -23,19 +31,29 @@
           </div>
         </div>
         <div class="desc">
-          <div class="desc-img"></div>
+          <div class="desc-img">
+            <img :src="infor.headImage" />
+          </div>
           <div class="desc-info">
-            <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-            <div class="price"><span>￥</span>499<span>.00</span></div>
-            <div class="inventory">库存：123</div>
+            <div class="text">{{infor.title}}</div>
+            <div class="price"><span>￥</span>{{infor.price && infor.price.split('.')[0]}}<span>.{{infor.price && infor.price.split('.')[1]}}</span></div>
+            <div class="inventory">库存：{{infor.number == 0 ? '不限量' : infor.number}}</div>
           </div>
         </div>
         <div class="count">
           <span>购买数量</span>
-          <div>
+          <div v-if="infor.number==0">
             <van-stepper v-model="num"
                          integer
-                         input-width=".37rem" />
+                         input-width=".37rem"
+                         @change="onChange" />
+          </div>
+          <div v-else>
+            <van-stepper v-model="num"
+                         integer
+                         :max="infor.number == 0 ? '' : infor.number"
+                         input-width=".37rem"
+                         @change="onChange" />
           </div>
         </div>
         <div class="method">
@@ -43,35 +61,121 @@
           <i>包邮</i>
         </div>
         <div class="clc">
-          <span>共1件</span>
+          <span>共{{num}}件</span>
           <i>小计：</i>
-          <em>￥79.00</em>
+          <em>￥{{totalPrice}}</em>
         </div>
       </div>
       <!-- 占位 -->
       <div class="footer-flag"></div>
       <div class="order-footer">
-        <span>￥<i>79</i>.00</span>
-        <button>提交订单</button>
+        <span>￥<i>{{parseInt(totalPrice)}}</i>.{{totalPrice.toString().split('.')[1]}}</span>
+        <button @click="createOrder">提交订单</button>
       </div>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations, mapGetters } from 'vuex'
+
 export default {
   name: "",
   data () {
     return {
-      num: 1
+      num: 1,
+      infor: '',
+      productId: '',
+      totalPrice: 0,
+      haveAddress: true,
+      nowAddressInfo: ''
     }
   },
   components: {},
-  methods: {}
+  methods: {
+    ...mapMutations(['backToName']),
+    ...mapGetters(['getUserId']),
+    addAddress () {
+      this.$router.push({
+        name: 'add-address',
+        params: {
+          act: 'buy',
+          id: this.$route.params.id
+        }
+      })
+    },
+    onChange (val) {
+      this.totalPrice = (val * this.infor.price).toFixed(2)
+    },
+    chooseAddress () {
+      this.$router.push({
+        name: 'my-address',
+        params: {
+          act: 'chooseAddress',
+          productId: this.productId
+        }
+      })
+    },
+    createOrder () {
+      let data = {
+        userId: this.getUserId(),
+        productId: this.productId,
+        price: this.infor.price,
+        number: this.num,
+        addressId: this.nowAddressInfo.id
+      }
+      this.$http.createOrder(data).then(res => {
+        console.log(res)
+        if (res.code === 1) {
+          this.$router.push('/payment-success')
+        }
+      })
+    }
+  },
+  created () {
+    console.log(this.$route.params)
+    if (this.$route.params.selectedAddress) { // 如果是选择地址返回的，不做请求
+      this.haveAddress = true
+      this.nowAddressInfo = this.$route.params.selectedAddress
+    } else {
+      let data = {
+        userId: this.$store.state.userId
+      }
+      this.$http.getAddressList(data).then(res => {
+        console.log(res)
+        let { data } = res
+        if (data.length === 0) {
+          this.haveAddress = false
+        } else {
+          this.nowAddressInfo = data[0]
+        }
+      })
+    }
+  },
+  mounted () {
+    this.backToName('detail')
+
+    this.productId = this.$route.params.id
+    this.$http.getShopDetail({ productId: this.productId }).then(resp => {
+      let { data } = resp
+      this.infor = data
+      this.totalPrice = this.infor.price
+    })
+  },
+  beforeRouteEnter (to, from, next) {
+    // 如果不存在id，跳转到404
+    // if (!to.params.id) {
+    //   next('/404')
+    // }
+    next()
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.confirm {
+  height: 100%;
+}
 .confirm-order {
   height: 100%;
   background: #f6f7fa;
@@ -79,11 +183,11 @@ export default {
   flex-direction: column;
   .contact-warp {
     height: 0.97rem;
-    padding-top: 0.1rem;
     margin-bottom: 0.1rem;
     background: #fff;
     position: relative;
     .contact {
+      padding-top: 0.1rem;
       margin-bottom: 8px;
       padding: 0 0.2rem;
       span {
@@ -99,13 +203,47 @@ export default {
         color: rgba(144, 144, 144, 1);
       }
     }
-    .address {
+    .address,
+    .default-address {
       font-size: 0.14rem;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
       line-height: 0.24rem;
       padding-left: 0.2rem;
       padding-right: 0.4rem;
+    }
+    .default-address::before {
+      content: "默认";
+      font-size: 0.1rem;
+      font-family: PingFangSC-Semibold, PingFang SC;
+      font-weight: 600;
+      background: #ffd200;
+      padding: 0 4px;
+      margin-right: 4px;
+    }
+    .add-address {
+      height: 100%;
+      display: flex;
+      padding-left: 0.2rem;
+      justify-content: flex-start;
+      align-items: center;
+      span {
+        display: flex;
+        align-items: center;
+        font-size: 0.14rem;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+      }
+      span::before {
+        content: "";
+        display: inline-block;
+        margin-right: 0.1rem;
+        width: 0.2rem;
+        height: 0.2rem;
+        vertical-align: middle;
+        background: url(../../assets/images/add.png) no-repeat center;
+        background-size: 100% 100%;
+      }
     }
     .line {
       position: absolute;
@@ -163,7 +301,10 @@ export default {
         width: 1.1rem;
         height: 1.1rem;
         margin-right: 0.2rem;
-        background: #f89;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
       .desc-info {
         .text {

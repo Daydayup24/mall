@@ -1,12 +1,12 @@
 <template>
   <div class="header">
     <button class="back"
-         @click="goBack">
+            @click="goBack">
       <van-icon name="arrow-left"
                 size=".22rem" />
     </button>
     <button class="close"
-         @click="close">
+            @click="close">
       <van-icon name="cross"
                 size=".22rem" />
     </button>
@@ -16,23 +16,40 @@
 
 <script type="text/ecmascript-6">
 import routes from '@/router/routes'
-
+import { mapGetters } from 'vuex'
 export default {
   name: "BHeader",
   data () {
     return {
-      
+
     }
   },
   components: {},
   methods: {
+    ...mapGetters(['getBackToName', 'getProductId']),
     goBack () {
-      this.$router.history.go(-1)
+      let id = this.getProductId()
+      let name = this.getBackToName()
+      this.$router.push({
+        name,
+        params: {
+          id
+        }
+      })
     },
     close () {
       this.$router.history.push('/shop-management')
     }
-  }
+  },
+  // watch: {
+  //   $route: (newVal, oldVal) => {
+  //     if (newVal !== oldVal) {
+  //       console.log(newVal)
+  //     } else {
+  //       console.log(123)
+  //     }
+  //   }
+  // }
 }
 </script>
 

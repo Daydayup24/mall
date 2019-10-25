@@ -14,69 +14,406 @@
                   title-active-color="#F7B500"
                   title-inactive-color="#909090"
                   color="#F7B500"
-                  line-width=".2rem">
+                  line-width=".2rem"
+                  :swipe-threshold="5"
+                  @change="onTabChange">
           <van-tab title="全部">
-            <div class="list">
-              <div class="list-item"
-                   v-for="i in 10"
-                   :key="i">
-                <div class="item-header">
-                  <div class="shop-avatar"></div>
-                  <div class="shop-name">奔跑的蜗牛</div>
-                  <div class="right">
-                    <van-icon name="arrow"
-                              size=".14rem" />
+            <van-list v-model="loading"
+                      :finished="finished"
+                      finished-text="没有更多了"
+                      @load="onLoading">
+              <div class="list">
+                <div class="list-item"
+                     v-for="item in orderList"
+                     :key="item.id">
+                  <div class="item-header">
+                    <!-- <div class="shop-avatar"></div> -->
+                    <div class="shop-name">奔跑的蜗牛</div>
+                    <div class="right">
+                      <van-icon name="arrow"
+                                size=".14rem" />
+                    </div>
+                    <!-- // 0 待支付 1-已支付（代发货） -1 退货申请中 -2 退货中 -3 退货交易完成 2 已发货 3 交易成功 99 全部订单 -->
+                    <div class="status status-loading status-del"
+                         v-if="item.status == 0">待支付<span></span></div>
+                    <div class="status status-loading"
+                         v-else-if="item.status==1">待发货</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==2">配送中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==3">交易完成<span></span></div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-1">退货申请中</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-2">退货中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==-3">退货完成<span></span></div>
                   </div>
-                  <div class="status status-loading"
-                       v-if="false">待发货</div>
-                  <div class="status status-going"
-                       v-else-if="false">配送中</div>
-                  <div class="status status-del"
-                       v-else></div>
-                </div>
-                <div class="desc">
-                  <div class="desc-img"></div>
-                  <div class="desc-info">
-                    <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-                    <div class="price"><span>￥</span>499<span>.00</span></div>
-                    <div class="inventory">库存：123</div>
+                  <div class="desc">
+                    <div class="desc-img">
+                      <img src="http://img.alicdn.com/bao/uploaded/i1/1727046883/O1CN01MtFGP720iSdAihvQ6_!!0-item_pic.jpg_600x600q90.jpg" />
+                    </div>
+                    <div class="desc-info">
+                      <div class="text">{{item.productTitle}}</div>
+                      <div class="price"><span>￥</span>499<span>.00</span></div>
+                      <div class="inventory">数量：{{item.number}}</div>
+                    </div>
                   </div>
-                </div>
-                <div class="edit-btn">
-                  <div class="refund"
-                       v-if="false">我要退款</div>
-                  <div class="refund"
-                       v-else-if="false">
-                    <button>我要退款</button>
-                    <span>|</span>
-                    <button>确认收货</button>
+                  <div class="edit-btn">
+                    <div class="refund"
+                         v-if="item.status==3 || item.status==1">我要退款</div>
+                    <div class="refund"
+                         v-else-if="item.status==2">
+                      <button>我要退款</button>
+                      <span>|</span>
+                      <button>确认收货</button>
+                    </div>
+                    <div class="refund"
+                         v-else-if="item.status==0">
+                      <button>立即支付</button>
+                    </div>
+                    <div class="refund"
+                         v-else></div>
                   </div>
-                  <div class="refund" v-else></div>
                 </div>
               </div>
-            </div>
+            </van-list>
+
           </van-tab>
-          <van-tab title="待发货">待发货</van-tab>
-          <van-tab title="待收货">待收货</van-tab>
-          <van-tab title="已完成">已完成</van-tab>
+          <van-tab title="待支付">
+            <van-list v-model="loading"
+                      :finished="finished"
+                      finished-text="没有更多了"
+                      @load="onLoading">
+              <div class="list">
+                <div class="list-item"
+                     v-for="item in orderList"
+                     :key="item.id">
+                  <div class="item-header">
+                    <!-- <div class="shop-avatar"></div> -->
+                    <div class="shop-name">奔跑的蜗牛</div>
+                    <div class="right">
+                      <van-icon name="arrow"
+                                size=".14rem" />
+                    </div>
+                    <!-- // 0 待支付 1-已支付（代发货） -1 退货申请中 -2 退货中 -3 退货交易完成 2 已发货 3 交易成功 99 全部订单 -->
+                    <div class="status status-loading status-del"
+                         v-if="item.status == 0">待支付<span></span></div>
+                    <div class="status status-loading"
+                         v-else-if="item.status==1">待发货</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==2">配送中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==3">交易完成<span></span></div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-1">退货申请中</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-2">退货中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==-3">退货完成<span></span></div>
+                  </div>
+                  <div class="desc">
+                    <div class="desc-img">
+                      <img src="http://img.alicdn.com/bao/uploaded/i1/1727046883/O1CN01MtFGP720iSdAihvQ6_!!0-item_pic.jpg_600x600q90.jpg" />
+                    </div>
+                    <div class="desc-info">
+                      <div class="text">{{item.productTitle}}</div>
+                      <div class="price"><span>￥</span>499<span>.00</span></div>
+                      <div class="inventory">数量：{{item.number}}</div>
+                    </div>
+                  </div>
+                  <div class="edit-btn">
+                    <div class="refund"
+                         v-if="item.status==3 || item.status==1">我要退款</div>
+                    <div class="refund"
+                         v-else-if="item.status==2">
+                      <button>我要退款</button>
+                      <span>|</span>
+                      <button>确认收货</button>
+                    </div>
+                    <div class="refund"
+                         v-else-if="item.status==0">
+                      <button>立即支付</button>
+                    </div>
+                    <div class="refund"
+                         v-else></div>
+                  </div>
+                </div>
+              </div>
+            </van-list>
+          </van-tab>
+          <van-tab title="待发货">
+            <van-list v-model="loading"
+                      :finished="finished"
+                      finished-text="没有更多了"
+                      @load="onLoading">
+              <div class="list">
+                <div class="list-item"
+                     v-for="item in orderList"
+                     :key="item.id">
+                  <div class="item-header">
+                    <!-- <div class="shop-avatar"></div> -->
+                    <div class="shop-name">奔跑的蜗牛</div>
+                    <div class="right">
+                      <van-icon name="arrow"
+                                size=".14rem" />
+                    </div>
+                    <!-- // 0 待支付 1-已支付（代发货） -1 退货申请中 -2 退货中 -3 退货交易完成 2 已发货 3 交易成功 99 全部订单 -->
+                    <div class="status status-loading status-del"
+                         v-if="item.status == 0">待支付<span></span></div>
+                    <div class="status status-loading"
+                         v-else-if="item.status==1">待发货</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==2">配送中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==3">交易完成<span></span></div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-1">退货申请中</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-2">退货中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==-3">退货完成<span></span></div>
+                  </div>
+                  <div class="desc">
+                    <div class="desc-img">
+                      <img src="http://img.alicdn.com/bao/uploaded/i1/1727046883/O1CN01MtFGP720iSdAihvQ6_!!0-item_pic.jpg_600x600q90.jpg" />
+                    </div>
+                    <div class="desc-info">
+                      <div class="text">{{item.productTitle}}</div>
+                      <div class="price"><span>￥</span>499<span>.00</span></div>
+                      <div class="inventory">数量：{{item.number}}</div>
+                    </div>
+                  </div>
+                  <div class="edit-btn">
+                    <div class="refund"
+                         v-if="item.status==3 || item.status==1">我要退款</div>
+                    <div class="refund"
+                         v-else-if="item.status==2">
+                      <button>我要退款</button>
+                      <span>|</span>
+                      <button>确认收货</button>
+                    </div>
+                    <div class="refund"
+                         v-else-if="item.status==0">
+                      <button>立即支付</button>
+                    </div>
+                    <div class="refund"
+                         v-else></div>
+                  </div>
+                </div>
+              </div>
+            </van-list>
+          </van-tab>
+          <van-tab title="待收货">
+            <van-list v-model="loading"
+                      :finished="finished"
+                      finished-text="没有更多了"
+                      @load="onLoading">
+              <div class="list">
+                <div class="list-item"
+                     v-for="item in orderList"
+                     :key="item.id">
+                  <div class="item-header">
+                    <!-- <div class="shop-avatar"></div> -->
+                    <div class="shop-name">奔跑的蜗牛</div>
+                    <div class="right">
+                      <van-icon name="arrow"
+                                size=".14rem" />
+                    </div>
+                    <!-- // 0 待支付 1-已支付（代发货） -1 退货申请中 -2 退货中 -3 退货交易完成 2 已发货 3 交易成功 99 全部订单 -->
+                    <div class="status status-loading status-del"
+                         v-if="item.status == 0">待支付<span></span></div>
+                    <div class="status status-loading"
+                         v-else-if="item.status==1">待发货</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==2">配送中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==3">交易完成<span></span></div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-1">退货申请中</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-2">退货中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==-3">退货完成<span></span></div>
+                  </div>
+                  <div class="desc">
+                    <div class="desc-img">
+                      <img src="http://img.alicdn.com/bao/uploaded/i1/1727046883/O1CN01MtFGP720iSdAihvQ6_!!0-item_pic.jpg_600x600q90.jpg" />
+                    </div>
+                    <div class="desc-info">
+                      <div class="text">{{item.productTitle}}</div>
+                      <div class="price"><span>￥</span>499<span>.00</span></div>
+                      <div class="inventory">数量：{{item.number}}</div>
+                    </div>
+                  </div>
+                  <div class="edit-btn">
+                    <div class="refund"
+                         v-if="item.status==3 || item.status==1">我要退款</div>
+                    <div class="refund"
+                         v-else-if="item.status==2">
+                      <button>我要退款</button>
+                      <span>|</span>
+                      <button>确认收货</button>
+                    </div>
+                    <div class="refund"
+                         v-else-if="item.status==0">
+                      <button>立即支付</button>
+                    </div>
+                    <div class="refund"
+                         v-else></div>
+                  </div>
+                </div>
+              </div>
+            </van-list>
+          </van-tab>
+          <van-tab title="退货订单">
+            <van-list v-model="loading"
+                      :finished="finished"
+                      finished-text="没有更多了"
+                      @load="onLoading">
+              <div class="list">
+                <div class="list-item"
+                     v-for="item in orderList"
+                     :key="item.id">
+                  <div class="item-header">
+                    <!-- <div class="shop-avatar"></div> -->
+                    <div class="shop-name">奔跑的蜗牛</div>
+                    <div class="right">
+                      <van-icon name="arrow"
+                                size=".14rem" />
+                    </div>
+                    <!-- // 0 待支付 1-已支付（代发货） -1 退货申请中 -2 退货中 -3 退货交易完成 2 已发货 3 交易成功 99 全部订单 -->
+                    <div class="status status-loading status-del"
+                         v-if="item.status == 0">待支付<span></span></div>
+                    <div class="status status-loading"
+                         v-else-if="item.status==1">待发货</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==2">配送中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==3">交易完成<span></span></div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-1">退货申请中</div>
+                    <div class="status status-going"
+                         v-else-if="item.status==-2">退货中</div>
+                    <div class="status status-del"
+                         v-else-if="item.status==-3">退货完成<span></span></div>
+                  </div>
+                  <div class="desc">
+                    <div class="desc-img">
+                      <img src="http://img.alicdn.com/bao/uploaded/i1/1727046883/O1CN01MtFGP720iSdAihvQ6_!!0-item_pic.jpg_600x600q90.jpg" />
+                    </div>
+                    <div class="desc-info">
+                      <div class="text">{{item.productTitle}}</div>
+                      <div class="price"><span>￥</span>499<span>.00</span></div>
+                      <div class="inventory">数量：{{item.number}}</div>
+                    </div>
+                  </div>
+                  <div class="edit-btn">
+                    <div class="refund"
+                         v-if="item.status==3 || item.status==1">我要退款</div>
+                    <div class="refund"
+                         v-else-if="item.status==2">
+                      <button>我要退款</button>
+                      <span>|</span>
+                      <button>确认收货</button>
+                    </div>
+                    <div class="refund"
+                         v-else-if="item.status==0">
+                      <button>立即支付</button>
+                    </div>
+                    <div class="refund"
+                         v-else></div>
+                  </div>
+                </div>
+              </div>
+            </van-list>
+          </van-tab>
         </van-tabs>
       </div>
     </div>
-    <div class="address-btn">收货地址</div>
+    <div class="address-btn"
+         @click="$router.push('/my-address')">收货地址</div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import { mapGetters } from 'vuex'
+
 export default {
   name: "",
   data () {
     return {
       value: '',
-      active: 0
+      active: 0,
+      orderList: [],
+      page: 1,
+      type: 99, // 99完成  1待发货  2待收货  3已完成  -99退货订单
+      total: 10,
+      loading: false,
+      finished: false,
+      isEnd: false
     }
   },
   components: {},
-  methods: {}
+  methods: {
+    ...mapGetters(['getUserId']),
+    getOrderList (params, page = 1) {
+      this.loading = true
+      this.$http.getOrderList(params).then(resp => {
+        if (resp.code === 1) {
+          let list = resp.data.order
+          this.orderList = page == 1 ? list : [...this.orderList, list]
+          let { total } = resp.data
+          if (this.total >= total) {
+            this.finished = true
+          }
+        }
+        this.loading = false
+      })
+    },
+    onLoading () {
+      let data = {
+        userId: this.getUserId(),
+        type: this.type
+      }
+      this.page = this.page + 1
+      this.total = this.total + 10
+      this.getOrderList(data, this.page)
+    },
+    onTabChange (index) {
+      console.log(index)
+      switch (index) {
+        case 1:
+          this.type = 0 //待支付
+          break
+        case 2:
+          this.type = 1 //待发货
+          break
+        case 3:
+          this.type = 2 //待收货
+          break
+        case 4:
+          this.type = -2 //退货订单
+          break
+        default:
+          this.type = 99 // 全部
+          break
+      }
+      this.page = 1
+      this.total = 10
+      let data = {
+        userId: this.getUserId(),
+        type: this.type
+      }
+      this.getOrderList(data)
+    }
+  },
+  mounted () {
+    let data = {
+      userId: this.getUserId()
+    }
+    this.getOrderList(data)
+  }
 }
 </script>
 
@@ -150,25 +487,32 @@ export default {
             }
             .status {
               position: absolute;
-              height: 0.21rem;
+              height: 100%;
               top: 0;
               bottom: 0;
               right: 0;
               margin: auto 0;
               font-size: 0.15rem;
               font-weight: 600;
+              display: flex;
+              align-items: center;
+              span {
+                display: inline-block;
+                width: 0.26rem;
+                height: 0.26rem;
+                background: url(../../assets/images/delete.png) no-repeat center;
+                background-size: 100% 100%;
+                margin-left: 4px;
+              }
             }
             .status-loading {
               color: rgba(252, 96, 96, 1);
             }
             .status-going {
-              color: #6dd400;
+              color: #ff976a;
             }
             .status-del {
-              width: .26rem;
-              height: .26rem;
-              background: url(../../assets/images/delete.png) no-repeat center;
-              background-size: 100% 100%;
+              color: #6dd400;
             }
           }
           .desc {
@@ -181,6 +525,10 @@ export default {
               height: 1.1rem;
               margin-right: 0.2rem;
               background: #f89;
+              img {
+                width: 100%;
+                height: 100%;
+              }
             }
             .desc-info {
               .text {
@@ -241,6 +589,9 @@ export default {
               }
             }
           }
+        }
+        .list-item:nth-last-child(1) {
+          margin-bottom: 0;
         }
       }
     }

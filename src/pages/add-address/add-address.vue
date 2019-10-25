@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <address-edit />
+    <address-edit :param="$route.params" />
   </div>
 </template>
 
@@ -11,6 +11,7 @@ export default {
   name: "",
   data () {
     return {
+
     }
   },
   components: {

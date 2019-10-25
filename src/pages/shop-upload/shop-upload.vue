@@ -4,34 +4,44 @@
       <p>标题</p>
       <input type="text"
              placeholder="请输入标题"
-             value="SANDRO ALLEN" />
+             v-model="title"
+             @focus="titleNull=false" />
+      <i v-show="titleNull">请输入标题!</i>
     </div>
     <div class="sc price">
       <p>价格</p>
       <input type="number"
-             placeholder="￥0.00" />
+             placeholder="￥0.00"
+             v-model="price"
+             @focus="priceNull=false" />
+      <i v-show="priceNull">请输入价格!</i>
     </div>
     <div class="sc inventory">
       <p>库存(<span>数字“0”表示不限量)</span></p>
       <input type="number"
-             placeholder="0" />
+             placeholder="0"
+             v-model="number" />
     </div>
     <div class="sc desc">
       <p>商品描述</p>
-      <textarea placeholder="请输入商品描述"></textarea>
+      <textarea placeholder="请输入商品描述"
+                v-model="describe"></textarea>
     </div>
     <div class="up-footer">
-      <van-uploader v-model="fileList"
+      <van-uploader v-model="imageUpload"
                     multiple
                     :max-count="5"
-                    preview-size=".6rem" />
+                    preview-size=".6rem"
+                    :after-read="afterRead" />
     </div>
     <button class="btn-upload"
-            @click="show = true">发布商品</button>
+            @click="upload">发布商品</button>
     <!-- 弹框 -->
-    <div class="dialog" v-show="show">
+    <div class="dialog"
+         v-show="show">
       <div class="t-title">
-        <button class="close" @click="show = false">
+        <button class="close"
+                @click="show = false">
           <van-icon name="cross"
                     size=".14rem" />
         </button>
@@ -41,7 +51,8 @@
         <p>发布成功，该商品在审核通过后即可分享给好友购买！</p>
         <p>审核期间将不可分享，不可编辑！</p>
       </div>
-      <div class="ok-btn" @click="show = false">确 认</div>
+      <div class="ok-btn"
+           @click="show = false;$router.push('/shop-management')">确 认</div>
     </div>
     <van-overlay :show="show" />
   </div>
@@ -52,12 +63,76 @@ export default {
   name: "",
   data () {
     return {
-      fileList: [],
-      show: false
+      show: false,
+      titleNull: false,
+      priceNull: false,
+      title: '',
+      price: '',
+      number: 0,
+      numberType: '',
+      describe: '',
+      imageUpload: [],
+      productId: ''
     }
   },
   components: {},
   methods: {
+    upload () {
+      if (this.title === '') {
+        this.titleNull = true
+      }
+      if (this.price === '') {
+        this.priceNull = true
+      } else {
+        let data = {
+          merId: 1,
+          title: this.title,
+          price: this.price,
+          number: this.number,
+          numberType: this.number == 0 ? 1 : 2,
+          describe: this.describe,
+          imageUpload: this.imageUpload
+        }
+        // 有productId是修改，没有则是新增
+        if (this.productId) {
+          data.productId = this.productId
+        }
+        this.$http.uploadShop(data).then(resp => {
+          this.show = true
+        })
+      }
+    },
+    afterRead (file) {
+      console.log(this.imageUpload)
+    }
+  },
+  mounted () {
+  },
+  beforeRouteEnter (to, from, next) {
+    let { id } = to.params
+    if (id) {
+      let data = {
+        productId: id
+      }
+      next(vm => {
+        vm.$http.getShopDetail(data).then(resp => {
+          let { data } = resp
+          vm.title = data.title
+          vm.price = data.price
+          vm.number = data.number
+          vm.describe = data.describe
+          let { image } = data
+          let img = []
+          image.forEach(item => {
+            img.push({ url: item })
+          })
+          vm.imageUpload = img
+          vm.productId = id
+          console.log(vm)
+        })
+      })
+    }
+    next()
   }
 }
 </script>
@@ -74,17 +149,35 @@ export default {
     background: #fff;
     padding: 0.1rem 0.2rem 0;
     margin-bottom: 0.05rem;
+    position: relative;
     p {
       font-size: 0.12rem;
       font-weight: 400;
       margin-bottom: 0.1rem;
     }
     input {
+      width: 100%;
       height: 0.2rem;
       line-height: 0.2rem;
       font-size: 0.15rem;
       font-weight: 600;
       border: 0;
+    }
+    i {
+      position: absolute;
+      right: 0.2rem;
+      font-size: 0.12rem;
+      color: #ee0a24;
+    }
+    i::before {
+      content: "";
+      display: inline-block;
+      width: 0.1rem;
+      height: 0.1rem;
+      vertical-align: middle;
+      margin-right: 2px;
+      background: url(../../assets/images/tuihuo.png) no-repeat center;
+      background-size: 100% 100%;
     }
   }
   .title {
@@ -101,6 +194,10 @@ export default {
     }
     input {
       color: rgba(144, 144, 144, 1);
+    }
+    input::before {
+      content: "￥";
+      display: inline;
     }
   }
   .inventory {

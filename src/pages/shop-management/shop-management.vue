@@ -1,74 +1,39 @@
 <template>
   <div class="shopList">
     <div class="none"
-         v-if="false">
+         v-if="products.length === 0">
       <div class="img">
         <div class="logo"></div>
         <p>你还没有上架任何商品！</p>
       </div>
-      <button class="upLoad">立即上架</button>
+      <button class="upLoad"
+              @click="$router.push('/shop-upload')">立即上架</button>
     </div>
     <div class="list"
          v-else>
-      <div class="list-item">
-        <div class="desc">
-          <div class="desc-img"></div>
+      <div class="list-item"
+           v-for="item in products"
+           :key="item.id">
+        <div class="desc" @click="goDetail(item.id)">
+          <div class="desc-img">
+            <img :src="item.headImage" />
+          </div>
           <div class="desc-info">
-            <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-            <div class="price"><span>￥</span>499<span>.00</span></div>
-            <div class="inventory">库存：123</div>
+            <div class="text">{{item.title}}</div>
+            <div class="price"><span>￥</span>{{item.price.split('.')[0]}}<span>.{{item.price.split('.')[1]}}</span></div>
+            <div class="inventory">库存：{{item.number}}</div>
           </div>
         </div>
         <div class="edit-btn">
-          <div class="btn share">
+          <div class="btn share" @click="share(item.id)">
             <span>分享</span>
           </div>
-          <div class="btn edit">
+          <div class="btn edit"
+               @click="shopEdit(item.id)">
             <span>编辑</span>
           </div>
-          <div class="btn del">
-            <span>删除</span>
-          </div>
-        </div>
-      </div>
-      <div class="list-item">
-        <div class="desc">
-          <div class="desc-img"></div>
-          <div class="desc-info">
-            <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-            <div class="price"><span>￥</span>499<span>.00</span></div>
-            <div class="inventory">库存：123</div>
-          </div>
-        </div>
-        <div class="edit-btn">
-          <div class="btn share">
-            <span>分享</span>
-          </div>
-          <div class="btn edit">
-            <span>编辑</span>
-          </div>
-          <div class="btn del">
-            <span>删除</span>
-          </div>
-        </div>
-      </div>
-      <div class="list-item">
-        <div class="desc">
-          <div class="desc-img"></div>
-          <div class="desc-info">
-            <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-            <div class="price"><span>￥</span>499<span>.00</span></div>
-            <div class="inventory">库存：123</div>
-          </div>
-        </div>
-        <div class="edit-btn">
-          <div class="btn share">
-            <span>分享</span>
-          </div>
-          <div class="btn edit">
-            <span>编辑</span>
-          </div>
-          <div class="btn del">
+          <div class="btn del"
+               @click="del(item.id)">
             <span>删除</span>
           </div>
         </div>
@@ -79,8 +44,10 @@
                              info="0" />
     </div>
     <div class="l-footer">
-      <button class="btn-upload">继续上架</button>
+      <button class="btn-upload"
+              @click="$router.push('/shop-upload')">继续上架</button>
     </div>
+
   </div>
 </template>
 
@@ -90,21 +57,55 @@ export default {
   name: "",
   data () {
     return {
-      userId: this.$store.state.user.userId,
-      merId: this.$store.state.user.merId
+      userId: this.$store.state.userId,
+      merId: this.$store.state.user.merId,
+      products: [],
     }
   },
   components: {},
-  methods: {},
+  methods: {
+    shopEdit (id) {
+      this.$router.push({
+        name: 'shop-upload',
+        params: {
+          id
+        }
+      })
+    },
+    del (id) {
+      this.$dialog.confirm({
+        message: '确定删除吗？',
+        confirmButtonColor: '#FFD200',
+        confirm: id => {
+          let data = {
+            productId: id,
+            merId: this.merId
+          }
+          this.$http.deleteShop(data).then(resp => {
+            console.log(resp)
+          })
+        }
+      }).catch(() => {
+      })
+    },
+    share (id) {
+
+    },
+    goDetail (id) {
+      this.$router.push({
+        name: 'detail',
+        params: {
+          id
+        }
+      })
+    }
+  },
   mounted () {
-    let params = {
+    let data = {
       merId: this.merId
     }
-    //   this.$http.getMerchantsShopList(params).then(resp => {
-    //     console.log(resp)
-    //   })
-    fetch('http://192.168.0.13:8090/content/api/merchant-product').then(resp => {
-      console.log(resp)
+    this.$http.getMerchantsShopList(data).then(resp => {
+      this.products = resp.data.products
     })
   }
 }
@@ -113,9 +114,14 @@ export default {
 <style lang="scss" scoped>
 .shopList {
   height: 100%;
+  background: #f6f7fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   .none {
     height: 100%;
     position: relative;
+    background: #fff;
     .img {
       position: absolute;
       top: 1.1rem;
@@ -129,7 +135,7 @@ export default {
         height: 1.29rem;
         background: url(../../assets/images/none.png) no-repeat center;
         background-size: 100% 100%;
-        margin-bottom: .3rem;
+        margin-bottom: 0.3rem;
       }
       p {
         text-align: center;
@@ -157,7 +163,8 @@ export default {
   }
 
   .list {
-    height: 100%;
+    flex: 1;
+    overflow: hidden auto;
     .list-item {
       width: 100%;
       height: 1.91rem;
@@ -165,6 +172,7 @@ export default {
       display: flex;
       flex-direction: column;
       margin-bottom: 0.1rem;
+      background: #fff;
       .desc {
         display: flex;
         padding-bottom: 0.2rem;
@@ -173,7 +181,11 @@ export default {
           width: 1.1rem;
           height: 1.1rem;
           margin-right: 0.2rem;
-          background: #f89;
+          img {
+            width: 100%;
+            height: 100%;
+            vertical-align: middle;
+          }
         }
         .desc-info {
           .text {
@@ -229,6 +241,7 @@ export default {
           span::before {
             content: "";
             display: inline-block;
+            vertical-align: middle;
             width: 0.12rem;
             height: 0.12rem;
             margin-right: 0.04rem;
@@ -254,17 +267,18 @@ export default {
           span::before {
             width: 0.12rem;
             height: 0.13rem;
+
             background: url(../../assets/images/del.png) no-repeat center;
             background-size: 100% 100%;
           }
         }
       }
     }
+    .list-item:nth-last-child(1) {
+      margin-bottom: 0;
+    }
   }
   .l-footer {
-    position: -webkit-sticky;
-    position: sticky;
-    bottom: 0;
     height: 0.5rem;
     width: 100%;
     display: flex;

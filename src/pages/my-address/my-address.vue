@@ -1,31 +1,75 @@
 <template>
   <div class="my-address">
     <div class="address-list">
-      <div class="list-item">
+      <div class="list-item"
+           v-for="item in addressList"
+           :key="item.id"
+           @click="chooseAddress(item)">
         <div class="contact">
-          <span>王先生</span>
-          <i>13883423756</i>
+          <span>{{item.name}}</span>
+          <i>{{item.phone}}</i>
         </div>
-        <div :class="1==1 ? 'default-address' : 'address'">四川省 成都市 武侯区 贵溪街道 天府三街118号天合凯旋广场</div>
-        <div class="icon">
-          <van-icon name="arrow"
+        <div :class="item.default==1 ? 'default-address' : 'address'">{{item.province}} {{item.city}} {{item.area}} {{item.address}}</div>
+        <div class="icon"
+             @click.stop="modifyAddress(item)">
+          <van-icon name="edit"
+                    size=".2rem"
                     color="#8F959A" />
         </div>
       </div>
     </div>
-    <div class="address-add">新增地址</div>
+    <div class="address-add"
+         @click="$router.push('/add-address')">新增地址</div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations, mapGetters } from 'vuex'
 export default {
   name: "",
   data () {
-    return {}
+    return {
+      addressList: [],
+      backName: '123'
+    }
   },
   components: {},
-  methods: {},
+  methods: {
+    ...mapMutations(['backToName']),
+    ...mapGetters(['getProductId']),
+    modifyAddress (item) {
+      this.$router.push({
+        name: 'modify-address',
+        params: {
+          area: item,
+          position: 'my-address' // 记录来时的地址
+        }
+      })
+    },
+    chooseAddress (item) {
+      let id = this.getProductId()
+      if (!id) { //如果不是从确认订单页面过来的，不执行
+        return null
+      }
+      this.$router.push({
+        name: 'confirm-order',
+        params: {
+          id
+        }
+      })
+    }
+  },
   mounted () {
+    let id = this.getProductId()
+    id ? this.backToName('confirm-order') : this.backToName('order-list')
+    let data = {
+      userId: this.$store.state.userId
+    }
+    this.$http.getAddressList(data).then(resp => {
+      if (resp.code === 1) {
+        this.addressList = resp.data
+      }
+    })
   }
 }
 </script>

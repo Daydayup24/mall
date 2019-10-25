@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="app-header">
+    <div class="app-header" v-if="$route.meta.title">
       <b-header>
         <router-view></router-view>
       </b-header>
@@ -23,7 +23,6 @@ export default {
     BHeader
   },
   methods: {
-
   }
 }
 </script>

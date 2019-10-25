@@ -135,6 +135,8 @@ const routes = [
     meta: {
       title: '消息通知'
     }
+  },{
+    path: '/404'
   }
 ]
 

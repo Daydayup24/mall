@@ -5,18 +5,29 @@
       <div class="logo"></div>
       <p>你已成功购买商品，请等待卖家发货！</p>
     </div>
-    <button class="upLoad">查看订单</button>
+    <button class="upLoad"
+            @click="goOderList">查看订单</button>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations } from 'vuex'
 export default {
   name: "",
   data () {
     return {}
   },
   components: {},
-  methods: {}
+  methods: {
+    ...mapMutations(['backToName', 'setProductId']),
+    goOderList () {
+      this.$router.push('/order-list')
+    }
+  },
+  mounted () {
+    this.backToName('order-list')
+    this.setProductId('')
+  }
 }
 </script>
 
