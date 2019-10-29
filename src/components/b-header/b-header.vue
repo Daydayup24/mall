@@ -28,6 +28,7 @@ export default {
   methods: {
     ...mapGetters(['getBackToName', 'getProductId']),
     goBack () {
+      console.log('goback', this.getBackToName())
       let id = this.getProductId()
       let name = this.getBackToName()
       this.$router.push({
@@ -38,18 +39,18 @@ export default {
       })
     },
     close () {
-      this.$router.history.push('/shop-management')
+      this.$router.push('/')
+    },
+    listeningBack () {
+      // var that = this //window.onpopstate方法指向window,所以要储存一下当前的vue实例
+      // window.addEventListener('popstate', e => {
+      //   that.goBack()
+      // }, false)
     }
   },
-  // watch: {
-  //   $route: (newVal, oldVal) => {
-  //     if (newVal !== oldVal) {
-  //       console.log(newVal)
-  //     } else {
-  //       console.log(123)
-  //     }
-  //   }
-  // }
+  mounted () {
+    this.listeningBack()
+  }
 }
 </script>
 

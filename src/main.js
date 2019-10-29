@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import * as $http from './requests'
 import store from './store'
+import VueClipboard from 'vue-clipboard2'
 import {
   Uploader,
   Area,
@@ -37,6 +38,12 @@ Vue.use(List)
 Vue.use(Tab).use(Tabs)
 Vue.use(Swipe).use(SwipeItem)
 
+Vue.use(VueClipboard)
+
+var padDate = function(val) {
+  val = val < 10 ? '0' + val : val
+  return val
+}
 // 全局混入
 Vue.mixin({
   filters: {
@@ -45,6 +52,23 @@ Vue.mixin({
     },
     toFix(value) {
       return value.toFixed(2)
+    },
+    formatDate(val) {
+      val = parseInt(val) * 1000
+      let value = new Date(val)
+      let year = value.getFullYear()
+      let month = padDate(value.getMonth() + 1)
+      let day = padDate(value.getDate())
+      let hour = padDate(value.getHours())
+      let minutes = padDate(value.getMinutes())
+      let seconds = padDate(value.getSeconds())
+      return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`
+    },
+    getParseInt(val) {
+      return parseInt(val)
+    },
+    getFloat(val) {
+      return (val + '').split('.')[1]
     }
   }
 })

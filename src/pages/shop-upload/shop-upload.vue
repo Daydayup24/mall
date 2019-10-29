@@ -59,6 +59,8 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations } from 'vuex'
+
 export default {
   name: "",
   data () {
@@ -72,11 +74,13 @@ export default {
       numberType: '',
       describe: '',
       imageUpload: [],
-      productId: ''
+      productId: '',
+      backName: ''
     }
   },
   components: {},
   methods: {
+    ...mapMutations(['setBackName', 'setProductId']),
     upload () {
       if (this.title === '') {
         this.titleNull = true
@@ -103,10 +107,16 @@ export default {
       }
     },
     afterRead (file) {
-      console.log(this.imageUpload)
+      // console.log(this.imageUpload)
     }
   },
   mounted () {
+    this.$nextTick(() => {
+      if (this.backName == 'detail') {
+        this.setProductId(this.$route.params.id)
+      }
+      this.setBackName(this.backName)
+    })
   },
   beforeRouteEnter (to, from, next) {
     let { id } = to.params
@@ -115,6 +125,7 @@ export default {
         productId: id
       }
       next(vm => {
+        vm.backName = from.name
         vm.$http.getShopDetail(data).then(resp => {
           let { data } = resp
           vm.title = data.title
@@ -128,7 +139,6 @@ export default {
           })
           vm.imageUpload = img
           vm.productId = id
-          console.log(vm)
         })
       })
     }

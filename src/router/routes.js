@@ -14,7 +14,7 @@ const Message = () => import('@/pages/message/message')
 const routes = [
   {
     path: '/',
-    redirect: '/detail/1'
+    redirect: '/detail/5'
   },
   {
     path: '/shop-management',
@@ -67,7 +67,7 @@ const routes = [
     }
   },
   {
-    path: '/order-detail/:id',
+    path: '/order-detail/:orderId',
     name: 'order-detail',
     components: {
       default: OrderDetail

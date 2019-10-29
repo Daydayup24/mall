@@ -93,8 +93,8 @@ export default {
   },
   components: {},
   methods: {
-    ...mapMutations(['backToName']),
-    ...mapGetters(['getUserId']),
+    ...mapMutations(['setBackName']),
+    ...mapGetters(['getUserId', 'getProductId']),
     addAddress () {
       this.$router.push({
         name: 'add-address',
@@ -112,20 +112,19 @@ export default {
         name: 'my-address',
         params: {
           act: 'chooseAddress',
-          productId: this.productId
+          productId: this.getProductId()
         }
       })
     },
     createOrder () {
       let data = {
         userId: this.getUserId(),
-        productId: this.productId,
+        productId: this.getProductId(),
         price: this.infor.price,
         number: this.num,
         addressId: this.nowAddressInfo.id
       }
       this.$http.createOrder(data).then(res => {
-        console.log(res)
         if (res.code === 1) {
           this.$router.push('/payment-success')
         }
@@ -133,7 +132,7 @@ export default {
     }
   },
   created () {
-    console.log(this.$route.params)
+    // console.log(this.$route.params)
     if (this.$route.params.selectedAddress) { // 如果是选择地址返回的，不做请求
       this.haveAddress = true
       this.nowAddressInfo = this.$route.params.selectedAddress
@@ -142,7 +141,6 @@ export default {
         userId: this.$store.state.userId
       }
       this.$http.getAddressList(data).then(res => {
-        console.log(res)
         let { data } = res
         if (data.length === 0) {
           this.haveAddress = false
@@ -153,9 +151,9 @@ export default {
     }
   },
   mounted () {
-    this.backToName('detail')
+    this.setBackName('detail')
 
-    this.productId = this.$route.params.id
+    this.productId = this.getProductId()
     this.$http.getShopDetail({ productId: this.productId }).then(resp => {
       let { data } = resp
       this.infor = data

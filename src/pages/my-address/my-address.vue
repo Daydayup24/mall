@@ -35,8 +35,8 @@ export default {
   },
   components: {},
   methods: {
-    ...mapMutations(['backToName']),
-    ...mapGetters(['getProductId']),
+    ...mapMutations(['setBackName']),
+    ...mapGetters(['getProductId', 'getUserId']),
     modifyAddress (item) {
       this.$router.push({
         name: 'modify-address',
@@ -54,16 +54,17 @@ export default {
       this.$router.push({
         name: 'confirm-order',
         params: {
-          id
+          id: item.id,
+          selectedAddress: item
         }
       })
     }
   },
   mounted () {
     let id = this.getProductId()
-    id ? this.backToName('confirm-order') : this.backToName('order-list')
+    id ? this.setBackName('confirm-order') : this.setBackName('order-list')
     let data = {
-      userId: this.$store.state.userId
+      userId: this.getUserId()
     }
     this.$http.getAddressList(data).then(resp => {
       if (resp.code === 1) {

@@ -39,10 +39,11 @@
       <!-- <div class="btn-mer"
            v-if="$store.state.user.merId"> -->
       <div class="btn-mer"
-           v-if="false">
+           v-if="true">
         <button class="btn-edit"
                 @click="editShop">编辑商品</button>
-        <button class="btn-share">分享商品</button>
+        <button class="btn-share"
+                @click="copyUrl">分享商品</button>
       </div>
       <button class="btn-buy"
               v-else
@@ -67,7 +68,17 @@ export default {
   },
   components: {},
   methods: {
-    ...mapMutations(['setProductId']),
+    ...mapMutations(['setProductId', 'setBackName']),
+    copyUrl () {
+      this.$copyText(location.href).then((e) => {
+        // success
+        console.log(e)
+        this.$toast.success('链接已成功复制到粘贴板')
+      }, (err) => {
+        // fail
+        console.log(err)
+      })
+    },
     previewImage (index) {
       this.startPosition = index
       this.show = true
@@ -92,10 +103,8 @@ export default {
       })
     },
     init (newVal, oldVa) {
-      if (oldVa !== newVal) {
-        this.id = newVal.params.id
-        this.getDetail()
-      }
+      this.id = newVal.params.id
+      this.getDetail()
     },
     getDetail () {
       this.$http.getShopDetail({ productId: this.id }).then(resp => {
@@ -106,12 +115,20 @@ export default {
     }
   },
   mounted () {
+    this.setBackName('message')
+    console.log(this.$router)
     this.id = this.$route.params.id;
     this.getDetail()
     this.setProductId(this.id)
   },
   watch: {
     $route: "init"
+  },
+  beforeRouteLeave (to, from, next) {
+    if (to.name !== 'confirm-order') {
+      this.setProductId('')
+    }
+    next()
   }
 }
 </script>

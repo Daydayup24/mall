@@ -1,15 +1,15 @@
 <template>
   <div class="order-detail">
     <div class="info-img img-daifahuo"
-         v-if="false"></div>
+         v-if="detailData.orderStatus==1"></div>
     <div class="info-img img-yifahuo"
-         v-else-if="false"></div>
+         v-else-if="detailData.orderStatus==2"></div>
     <div class="info-img img-success"
          v-else></div>
     <div class="user-info">
-      <p class="user">收货人：王先生</p>
-      <p class="tel">13883423756</p>
-      <p class="address">地址：四川省 成都市 锦江区 爵板街1号附1号泰丰嘉裕</p>
+      <p class="user">收货人：{{detailData.name}}</p>
+      <p class="tel">{{detailData.phone}}</p>
+      <p class="address">地址：{{detailData.province}} {{detailData.city}} {{detailData.area}} {{detailData.address}}</p>
     </div>
     <div class="margin"></div>
     <div class="shop-info">
@@ -20,22 +20,31 @@
           <van-icon name="arrow"
                     size=".14rem" />
         </div>
+        <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
         <div class="status status-going"
-             v-if="false">配送中</div>
+             v-if="detailData.orderStatus==1">待发货</div>
+        <div class="status status-going"
+             v-else-if="detailData.orderStatus==2">配送中</div>
         <div class="status status-success"
-             v-else-if="true">交易成功</div>
+             v-else-if="detailData.orderStatus==3">交易完成</div>
+        <div class="status status-return"
+             v-else-if="detailData.orderStatus==-1">退款申请中</div>
+        <div class="status status-return"
+             v-else-if="detailData.orderStatus==-2">退款中</div>
+        <div class="status status-success"
+             v-else-if="detailData.orderStatus==-3">退款完成</div>
       </div>
       <div class="desc">
         <div class="desc-img"></div>
         <div class="desc-info">
-          <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-          <div class="price">￥79.00</div>
-          <div class="inventory">库存：123</div>
+          <div class="text">{{detailData.title}}</div>
+          <div class="price">￥{{detailData.payPrice}}</div>
+          <div class="inventory">数量：{{detailData.number}}</div>
         </div>
       </div>
       <div class="true-price">
         <span>实付金额</span>
-        <span>￥<i>79</i>.00</span>
+        <span>￥<i>{{detailData.payPrice | getParseInt}}</i>.{{detailData.payPrice | getFloat}}</span>
       </div>
     </div>
     <div class="margin"></div>
@@ -43,32 +52,34 @@
       <div class="order-info">
         <p>
           <span>订单编号</span>
-          <span>607595137412500886</span>
+          <span>{{detailData.orderNumber}}</span>
         </p>
         <p>
           <span>购买时间</span>
-          <span>2019-10-21 10:20:34</span>
+          <span>{{detailData.orderTime | formatDate}}</span>
         </p>
-        <p v-if="true">
+        <p v-if="detailData.orderStatus!=1 && detailData.status>1">
           <span>发货时间</span>
-          <span>2019-10-21 14:20:34</span>
+          <span>{{detailData.sendTime | formatDate}}</span>
         </p>
-        <p v-if="true">
+        <p v-if="detailData.finishTime">
           <span>成交时间</span>
-          <span>2019-10-24 14:20:34</span>
+          <span>{{detailData.finishTime | formatDate}}</span>
         </p>
       </div>
     </div>
     <!-- 占位 -->
     <div class="footer-flag"></div>
-    <div class="order-footer order-footer-daifahuo"
-         v-if="true">
-      <button @click="show1=true">退款</button>
-    </div>
     <div class="order-footer order-footer-yiifahuo"
-         v-else-if="false">
+         v-if="detailData.orderStatus == 2">
       <button>退款</button>
       <button @click="show=true">确认收货</button>
+    </div>
+    <div class="order-footer order-footer-tuihuo"
+         v-else-if="detailData.orderStatus<0"></div>
+    <div class="order-footer order-footer-daifahuo"
+         v-else="true">
+      <button @click="show1=true">退款</button>
     </div>
     <!-- 弹框 -->
     <div class="dialog-confirm"
@@ -85,7 +96,7 @@
         <p>成功收到商品，并确认收货！</p>
       </div>
       <div class="ok-btn"
-           @click="show = false">确 认</div>
+           @click="ensureTrade">确 认</div>
     </div>
     <van-overlay :show="show" />
     <!-- 弹框 -->
@@ -101,32 +112,86 @@
       </div>
       <div class="content">
         <div class="select1">
-          <h3 :class="1==1 ? 'select' : 'no-select'">我要退款（无需退货）</h3>
+          <h3 :class="isSelectedFirst ? 'select' : 'no-select'"
+              @click="isSelectedFirst=true">我要退款（无需退货）</h3>
           <p>没收到货，或与卖家协商同意不用退货只退款</p>
         </div>
         <div class="select2">
-          <h3 :class="1==1 ? 'no-select' : 'select'">我要退货退款</h3>
+          <h3 :class="isSelectedFirst ? 'no-select' : 'select'"
+              @click="isSelectedFirst=false">我要退货退款</h3>
           <p>已收到货，需要退还收到的货物</p>
         </div>
       </div>
       <div class="ok-btn"
-           @click="show1 = false">确 认</div>
+           @click="returnTrade">确 认</div>
     </div>
     <van-overlay :show="show1" />
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import { mapGetters, mapMutations } from 'vuex'
+
+let timer = null
 export default {
   name: "",
   data () {
     return {
       show: false, // 确认收货弹框
-      show1: false // 退款申请弹框
+      show1: false, // 退款申请弹框
+      orderId: '',
+      detailData: {},
+      isSelectedFirst: true
     }
   },
   components: {},
-  methods: {}
+  methods: {
+    ...mapGetters(['getUserId']),
+    ...mapMutations(['setBackName']),
+    ensureTrade () {
+      let data = {
+        userId: this.getUserId(),
+        orderId: this.$route.params.orderId
+      }
+      this.$http.ensureTrade(data).then(resp => {
+        if (resp.code === 1) {
+          this.$toast.success('收货成功')
+          this.show = false
+        }
+      })
+    },
+    returnTrade () {
+      let data = {
+        userId: this.getUserId(),
+        orderId: this.$route.params.orderId,
+        remark: this.isSelectedFirst ? '我要退款（无需退货）' : '我要退货退款'
+      }
+      this.$http.returnTrade(data).then(resp => {
+        if (resp.code === 1) {
+          this.$toast.success('退款申请成功')
+        }
+        this.show1 = false
+        timer = setTimeout(() => {
+          this.$router.push('/order-list')
+        }, 3000)
+      })
+    }
+  },
+  mounted () {
+    this.setBackName('order-list')
+    let userId = this.getUserId()
+    let { orderId } = this.$route.params
+    let data = { userId, orderId }
+    this.$http.getOrderDetail(data).then(resp => {
+      if (resp.code === 1) {
+        this.detailData = resp.data
+      }
+    })
+  },
+  beforeRouteLeave (to, from, next) {
+    clearTimeout(timer)
+    next()
+  }
 }
 </script>
 
@@ -225,6 +290,9 @@ export default {
       }
       .status-success {
         font-weight: 400;
+      }
+      .status-return {
+        color: #ff976a;
       }
     }
     .desc {

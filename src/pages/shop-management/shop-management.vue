@@ -1,7 +1,7 @@
 <template>
   <div class="shopList">
     <div class="none"
-         v-if="products.length === 0">
+         v-if="products.length == 0">
       <div class="img">
         <div class="logo"></div>
         <p>你还没有上架任何商品！</p>
@@ -14,7 +14,8 @@
       <div class="list-item"
            v-for="item in products"
            :key="item.id">
-        <div class="desc" @click="goDetail(item.id)">
+        <div class="desc"
+             @click="goDetail(item.id)">
           <div class="desc-img">
             <img :src="item.headImage" />
           </div>
@@ -25,7 +26,8 @@
           </div>
         </div>
         <div class="edit-btn">
-          <div class="btn share" @click="share(item.id)">
+          <div class="btn share"
+               @click="share(item.id)">
             <span>分享</span>
           </div>
           <div class="btn edit"
@@ -39,9 +41,13 @@
         </div>
       </div>
     </div>
-    <div class="btn-msg">
+    <div class="btn-msg"
+         @click="goMessage">
+      <div class="msg"
+           v-if="scanCount==0"></div>
       <van-goods-action-icon class="msg"
-                             info="0" />
+                             :info="scanCount"
+                             v-else />
     </div>
     <div class="l-footer">
       <button class="btn-upload"
@@ -58,8 +64,9 @@ export default {
   data () {
     return {
       userId: this.$store.state.userId,
-      merId: this.$store.state.user.merId,
+      merId: this.$store.state.merId,
       products: [],
+      scanCount: 0
     }
   },
   components: {},
@@ -82,7 +89,7 @@ export default {
             merId: this.merId
           }
           this.$http.deleteShop(data).then(resp => {
-            console.log(resp)
+            // console.log(resp)
           })
         }
       }).catch(() => {
@@ -98,6 +105,9 @@ export default {
           id
         }
       })
+    },
+    goMessage () {
+      this.$router.push('/message')
     }
   },
   mounted () {
@@ -106,6 +116,7 @@ export default {
     }
     this.$http.getMerchantsShopList(data).then(resp => {
       this.products = resp.data.products
+      this.scanCount = resp.data.scanCount > 99 ? '99+' : resp.data.scanCount
     })
   }
 }

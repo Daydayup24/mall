@@ -1,28 +1,66 @@
 import axios from 'axios'
 import qs from 'qs'
+import Vue from 'vue'
+import { Toast } from 'vant'
 
 const ajax = axios.create({
   timeout: 1000 * 12,
   baseURL: 'http://192.168.0.13:8090'
 })
 
-ajax.interceptors.request.use(config => {
-  config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-  if (config.method === 'post') {
-    // post请求时，处理数据
-    config.data = qs.stringify({
-      ...config.data //后台数据接收这块需要以表单形式提交数据，而axios中post默认的提交是json数据,所以这里选用qs模块来处理数据
+let toast = null
+// http请求拦截器
+ajax.interceptors.request.use(
+  config => {
+    toast = Toast.loading({
+      message: '加载中...',
+      loadingType: 'spinner',
+      forbidClick: true
     })
+    config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+    if (config.method === 'post') {
+      // post请求时，处理数据
+      config.data = qs.stringify({
+        ...config.data //后台数据接收这块需要以表单形式提交数据，而axios中post默认的提交是json数据,所以这里选用qs模块来处理数据
+      })
+    }
+    return config
+  },
+  err => {
+    let timer = setTimeout(() => {
+      Toast.fail({
+        message: '加载超时',
+        forbidClick: true
+      })
+      clearTimeout(timer)
+    }, 3000)
+    reject(err)
   }
-  return config
-})
+)
 
-ajax.interceptors.response.use(data => {
-  if (data.data.code === 1) {
-    return data.data
+// http响应拦截器
+ajax.interceptors.response.use(
+  data => {
+    toast.clear() // 相应成功关闭toast
+    if (data.data.code === 1) {
+      return data.data
+    }
+    Toast.fail({
+      message: '服务器异常\n请稍后再试',
+      forbidClick: true
+    })
+  },
+  err => {
+    let timer = setTimeout(() => {
+      Toast.fail({
+        message: '加载超时',
+        forbidClick: true
+      })
+      clearTimeout(timer)
+    }, 3000)
+    reject(err)
   }
-})
-
+)
 
 // 获取商家商品列表
 export const getMerchantsShopList = params => {
@@ -36,7 +74,7 @@ export const uploadShop = params => {
 
 // 获取商品详情
 export const getShopDetail = data => {
-  return ajax.get('/content/api/product-detail', {params: data})
+  return ajax.get('/content/api/product-detail', { params: data })
 }
 
 // 删除商品
@@ -62,4 +100,39 @@ export const createOrder = parmas => {
 // 获取订单列表
 export const getOrderList = params => {
   return ajax.post('/content/api/user-order', params)
+}
+
+// 获取订单详情
+export const getOrderDetail = params => {
+  return ajax.post('/content/api/user-order-detail', params)
+}
+
+// 确认收货
+export const ensureTrade = params => {
+  return ajax.post('/content/api/user-sure-trade', params)
+}
+
+// 退货申请
+export const returnTrade = params => {
+  return ajax.post('/content/api/trade-return', params)
+}
+
+// 删除订单
+export const delOrder = params => {
+  return ajax.post('/content/api/user-delete-order', params)
+}
+
+// 获取用户历史足迹
+export const getHistory = params => {
+  return ajax.post('/content/api/user-scan', params)
+}
+
+// 用户确认退款
+export const userEnsureRefund = params => {
+  return ajax.post('/content/api/return-success', params)
+}
+
+// 商家获取消息
+export const getMerMessage = params => {
+  return ajax.post('/content/api/mer-scan', params)
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="history">
     <div class="none"
-         v-if="false">
+         v-if="historyList.length==0">
       <div class="img">
         <div class="logo"></div>
         <p>你还没有浏览任何商品！</p>
@@ -11,8 +11,8 @@
     <div class="list"
          v-else>
       <div class="list-item"
-           v-for="i in 10"
-           :key="i">
+           v-for="item in historyList"
+           :key="item.id">
         <div class="item-header">
           <div class="shop-avatar"></div>
           <div class="shop-name">奔跑的蜗牛</div>
@@ -24,25 +24,39 @@
         <div class="desc">
           <div class="desc-img"></div>
           <div class="desc-info">
-            <div class="text">极米100英寸 16:10 电动幕布(静音调控 家庭高清影院哈哈哈哈哈哈哈哈</div>
-            <div class="price"><span>￥</span>499<span>.00</span></div>
-            <div class="inventory">库存：123</div>
+            <div class="text">{{item.title}}</div>
+            <div class="price"><span>￥</span>{{123.44 | getParseInt}}<span>.{{123.44 | getFloat}}</span></div>
+            <!-- <div class="inventory">库存：123</div> -->
           </div>
         </div>
       </div>
     </div>
-    <button class="clear">清除记录</button>
+    <button :class="historyList.length==0 ? 'clear clear-grey' : 'clear'">清除记录</button>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+import { mapGetters } from 'vuex'
+
 export default {
   name: "",
   data () {
-    return {}
+    return {
+      historyList: []
+    }
   },
   components: {},
-  methods: {}
+  methods: {
+    ...mapGetters(['getUserId'])
+  },
+  mounted () {
+    let data = { userId: this.getUserId() }
+    this.$http.getHistory(data).then(resp => {
+      if (resp.code === 1) {
+        this.historyList = resp.data
+      }
+    })
+  }
 }
 </script>
 
@@ -160,6 +174,8 @@ export default {
   top: 0.12rem;
   right: 0.2rem;
   font-weight: 400;
+}
+.clear-grey {
   color: rgba(144, 144, 144, 1);
 }
 </style>

@@ -19,13 +19,13 @@ export default {
   },
   components: {},
   methods: {
-    ...mapMutations(['backToName', 'setProductId']),
+    ...mapMutations(['setBackName', 'setProductId']),
     goOderList () {
       this.$router.push('/order-list')
     }
   },
   mounted () {
-    this.backToName('order-list')
+    this.setBackName('order-list')
     this.setProductId('')
   }
 }

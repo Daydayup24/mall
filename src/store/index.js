@@ -11,7 +11,7 @@ const state = {
 }
 
 const mutations = {
-  backToName(state, val) {
+  setBackName(state, val) {
     state.backToName = val
   },
   setProductId(state, val) {
@@ -25,7 +25,8 @@ const mutations = {
 const getters = {
   getBackToName: state => state.backToName,
   getProductId: state => state.productId,
-  getUserId: state => state.userId
+  getUserId: state => state.userId,
+  getMerId: state => state.merId
 }
 
 export default new Vuex.Store({

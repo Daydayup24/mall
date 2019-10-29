@@ -32,7 +32,6 @@ export default {
   methods: {},
   created () {
     let { area } = this.$route.params
-    console.log(area)
     this.consignee = area.name
     this.tel = area.phone
     this.address = `${area.province} ${area.city} ${area.area}`

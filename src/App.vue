@@ -23,7 +23,7 @@ export default {
     BHeader
   },
   methods: {
-  }
+  } 
 }
 </script>
 

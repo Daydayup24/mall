@@ -116,7 +116,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['backToName']),
+    ...mapMutations(['setBackName']),
     onCancel () {
       this.show = false
     },
@@ -124,7 +124,6 @@ export default {
       this.private_isDefault = !this.private_isDefault
     },
     onConfirm (data) {
-      console.log(data)
       this.province = data[0].name
       this.city = data[1].name
       this.area = data[2].name
@@ -132,7 +131,6 @@ export default {
       this.private_address = data.forEach(item => {
         val = val + item.name + ' '
       })
-      console.log(val)
       this.private_address = val
       this.show = false
     },
@@ -159,7 +157,6 @@ export default {
       }
 
       this.$http.addAddress(data).then(resp => {
-        console.log(resp)
         // 判断是否是从确认订单页面跳转过来的
         if (this.param.act === 'buy') {
           this.$router.push({
@@ -187,7 +184,6 @@ export default {
       this.submitForm(data)
     },
     confirmModify (addressId) {
-      console.log(addressId)
       let data = {
         userId: this.$store.state.userId,
         name: this.private_consignee,
@@ -203,7 +199,7 @@ export default {
     }
   },
   mounted () {
-    this.backToName('my-address')
+    this.setBackName('my-address')
   }
 }
 </script>
