@@ -73,6 +73,7 @@ export default {
     left: 0.49rem;
   }
   .title {
+    
     width: 1.2rem;
     height: 0.22rem;
     position: absolute;

@@ -39,7 +39,7 @@
       <!-- <div class="btn-mer"
            v-if="$store.state.user.merId"> -->
       <div class="btn-mer"
-           v-if="true">
+           v-if="false">
         <button class="btn-edit"
                 @click="editShop">编辑商品</button>
         <button class="btn-share"
@@ -146,7 +146,8 @@ export default {
   overflow: hidden;
   .detail-main {
     flex: 1;
-    overflow: hidden auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     .info {
       padding: 0 0.2rem;
       .info-top {

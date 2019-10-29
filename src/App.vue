@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <div class="app-header" v-if="$route.meta.title">
+    <div class="app-header"
+         v-if="$route.meta.title">
       <b-header>
         <router-view></router-view>
       </b-header>
@@ -23,7 +24,7 @@ export default {
     BHeader
   },
   methods: {
-  } 
+  }
 }
 </script>
 
@@ -148,7 +149,8 @@ input::-webkit-input-placeholder {
 
   .app-main {
     flex: 1;
-    overflow: hidden auto;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 </style>

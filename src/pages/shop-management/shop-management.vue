@@ -175,7 +175,8 @@ export default {
 
   .list {
     flex: 1;
-    overflow: hidden auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     .list-item {
       width: 100%;
       height: 1.91rem;

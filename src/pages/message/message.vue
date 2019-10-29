@@ -121,7 +121,8 @@ export default {
 .message {
   height: 100%;
   background: #f8f9fc;
-  overflow: hidden auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   .msg-item {
     width: 100%;
     height: 2.32rem;

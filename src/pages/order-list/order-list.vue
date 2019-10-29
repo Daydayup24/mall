@@ -261,8 +261,8 @@ export default {
       flex: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden auto;
-      
+      overflow-x: hidden;
+      overflow-y: auto;
       .autoFlex {
         flex: 1;
         background: #f7f8fb;

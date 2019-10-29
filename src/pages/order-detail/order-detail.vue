@@ -198,7 +198,8 @@ export default {
 <style lang="scss" scoped>
 .order-detail {
   height: 100%;
-  overflow: hidden auto;
+  overflow-x: hidden;
+    overflow-y: auto;
   .img-daifahuo {
     background: url(../../assets/images/daifahuo.png) no-repeat center;
   }
