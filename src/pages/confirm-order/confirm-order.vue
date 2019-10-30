@@ -37,12 +37,12 @@
           <div class="desc-info">
             <div class="text">{{infor.title}}</div>
             <div class="price"><span>￥</span>{{infor.price && infor.price.split('.')[0]}}<span>.{{infor.price && infor.price.split('.')[1]}}</span></div>
-            <div class="inventory">库存：{{infor.number == 0 ? '不限量' : infor.number}}</div>
+            <div class="inventory">库存：{{infor.numberType == 1 ? '不限量' : infor.number}}</div>
           </div>
         </div>
         <div class="count">
           <span>购买数量</span>
-          <div v-if="infor.number==0">
+          <div v-if="infor.numberType==1">
             <van-stepper v-model="num"
                          integer
                          input-width=".37rem"
@@ -51,9 +51,10 @@
           <div v-else>
             <van-stepper v-model="num"
                          integer
-                         :max="infor.number == 0 ? '' : infor.number"
+                         :max="infor.number"
                          input-width=".37rem"
-                         @change="onChange" />
+                         @change="onChange"
+                         :quota="infor.number" />
           </div>
         </div>
         <div class="method">

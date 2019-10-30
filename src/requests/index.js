@@ -1,6 +1,5 @@
 import axios from 'axios'
 import qs from 'qs'
-import Vue from 'vue'
 import { Toast } from 'vant'
 
 const ajax = axios.create({
@@ -135,4 +134,19 @@ export const userEnsureRefund = params => {
 // 商家获取消息
 export const getMerMessage = params => {
   return ajax.post('/content/api/mer-scan', params)
+}
+
+// 商户同意退款
+export const MerAgreeRefund = params => {
+  return ajax.post('/content/api/return-sure', params)
+}
+
+// 商家删除订单
+export const MerDelOrder = params => {
+  return ajax.post('/content/api/mer-delete-order', params)
+}
+
+// 商家订单发货
+export const ensureOrderSend = params => {
+  return ajax.post('/content/api/product-send', params)
 }

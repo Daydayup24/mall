@@ -51,7 +51,6 @@
 import orderList from '@/components/order-list/order-list'
 import { mapGetters, mapMutations } from 'vuex'
 
-let timer = null
 export default {
   name: "",
   data () {
@@ -74,6 +73,15 @@ export default {
   methods: {
     ...mapGetters(['getUserId']),
     ...mapMutations(['setBackName']),
+    reload () {
+      let data = {
+        userId: this.getUserId(),
+        type: this.type
+      }
+      this.page = 1
+      this.total = 10
+      this.getOrderList(data)
+    },
     onDelOrder (orderId) {
       this.$dialog.confirm({
         message: '确定删除吗？',
@@ -84,10 +92,8 @@ export default {
           userId: this.getUserId()
         }
         this.$http.delOrder(data).then(resp => {
-          if (resp.code === 1) {
-            this.$toast.success('删除成功')
-            this.orderList = this.orderList.filter(item => item.id !== orderId)
-          }
+          this.$toast.success('删除成功')
+          this.orderList = this.orderList.filter(item => item.id !== orderId)
         })
       }).catch(() => {
       })
@@ -98,13 +104,14 @@ export default {
         orderId
       }
       this.$http.ensureTrade(data).then(resp => {
-        if (resp.code === 1) {
-          this.$toast.success('收货成功')
-          this.$refs.listComponent.show = false
-        }
+        this.$toast.success('收货成功')
+        this.$refs.listComponent.show = false
+        this.$forceUpdate()
+        let timer = null
         timer = setTimeout(() => {
-          location.reload()
-        }, 3000)
+          this.reload()
+          clearTimeout(timer)
+        }, 1000)
       })
     },
     onReturnTrade (obj) {
@@ -115,13 +122,15 @@ export default {
         remark: obj.isSelectedFirst ? '我要退款（无需退货）' : '我要退货退款'
       }
       this.$http.returnTrade(data).then(resp => {
-        if (resp.code === 1) {
-          this.$toast.success('退款申请成功')
-        }
+        this.$toast.success('退款申请成功')
+        // this.$set(this.$refs.listComponent, 'show1', false)
         this.$refs.listComponent.show1 = false
+        this.$forceUpdate()
+        let timer = null
         timer = setTimeout(() => {
-          location.reload()
-        }, 3000)
+          this.reload()
+          clearTimeout(timer)
+        }, 1000)
       })
     },
     onEnsureRefund (orderId) {
@@ -134,9 +143,12 @@ export default {
         if (resp && resp.code === 1) {
           this.$toast.success('确认退款成功')
           this.$refs.listComponent.show2 = false
+          this.$forceUpdate()
+          let timer = null
           timer = setTimeout(() => {
-            location.reload()
-          }, 3000)
+            this.reload()
+            clearTimeout(timer)
+          }, 1000)
         }
       })
     },

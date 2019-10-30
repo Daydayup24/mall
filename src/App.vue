@@ -70,6 +70,8 @@ body {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  /* 兼容ios对overflow:auto的支持 */
+  // -webkit-overflow-scrolling: touch;
 }
 
 input,

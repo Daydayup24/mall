@@ -27,6 +27,10 @@
             <span>待处理</span>
           </div>
           <div class="status"
+               v-else-if="item.status==2"><i>配送中</i></div>
+          <div class="status"
+               v-else-if="item.status==-2"><i>退货中</i></div>
+          <div class="status"
                v-else-if="item.status==3">交易成功</div>
           <div class="status"
                v-else-if="item.status==-3">退货完成</div>
@@ -50,16 +54,80 @@
             </div>
           </div>
         </div>
-        <div class="edit-btn">
+        <div class="edit-btn"
+             @click="editOrderId=item.id">
           <div class="refund"
-               v-if="item.status==1">确认发货</div>
+               v-if="item.status==1"
+               @click="show2=true">确认发货</div>
           <div class="refund"
-               v-else-if="item.status==-1">确认退货</div>
+               v-else-if="item.status==-1"
+               @click="show=true">确认退货</div>
           <div class="refund"
-               v-else-if="item.status==-3 || item.status==3">删除订单</div>
+               v-else-if="item.status==-2"
+               @click="show1=true">完成退货</div>
+          <div class="refund"
+               v-else-if="item.status==-3 || item.status==3"
+               @click="delOrder(item.id)">删除订单</div>
         </div>
       </div>
     </van-list>
+    <!-- 退货确认弹框 -->
+    <div class="dialog-confirm"
+         v-show="show">
+      <div class="t-title">
+        <button class="close"
+                @click="show = false">
+          <van-icon name="cross"
+                    size=".14rem" />
+        </button>
+        <span>确认退货</span>
+      </div>
+      <div class="content">
+        <p>同意会员退货申请？</p>
+      </div>
+      <div class="ok-btn"
+           @click="MerAgreeRefund">确 认</div>
+    </div>
+    <van-overlay :show="show"
+                 :z-index="10" />
+    <!-- 完成退货弹框 -->
+    <div class="dialog-confirm"
+         v-show="show1">
+      <div class="t-title">
+        <button class="close"
+                @click="show1 = false">
+          <van-icon name="cross"
+                    size=".14rem" />
+        </button>
+        <span>完成退货</span>
+      </div>
+      <div class="content">
+        <p>确认完成退款交易？</p>
+      </div>
+      <div class="ok-btn"
+           @click="ensureRefundCompleted">确 认</div>
+    </div>
+    <van-overlay :show="show1"
+                 :z-index="10" />
+    <!-- 确认弹框 -->
+    <div class="dialog-confirm"
+         v-show="show2">
+      <div class="t-title">
+        <button class="close"
+                @click="show2 = false">
+          <van-icon name="cross"
+                    size=".14rem" />
+        </button>
+        <span>确认发货</span>
+      </div>
+      <div class="content">
+        <p>确认已发货？</p>
+      </div>
+      <div class="ok-btn"
+           @click="ensureOrderSend">确 认</div>
+    </div>
+    <van-overlay :show="show2"
+                 :z-index="10" />
   </div>
 </template>
 
@@ -70,17 +138,27 @@ export default {
   name: "",
   data () {
     return {
+      show: false,
+      show1: false,
+      show2: false,
       msgList: [],
       page: 1,
       total: 10,
       loading: false,
-      finished: false
+      finished: false,
+      editOrderId: ''
     }
   },
   components: {},
   methods: {
-    ...mapGetters(['getMerId']),
+    ...mapGetters(['getMerId', 'getUserId']),
     ...mapMutations(['setBackName']),
+    init () {
+      let data = { merId: this.getMerId() }
+      this.page = 0
+      this.total = 10
+      this.getMsgList(data)
+    },
     getMsgList (params, page = 1) {
       this.$http.getMerMessage(params).then(resp => {
         this.loading = true
@@ -98,8 +176,6 @@ export default {
       })
     },
     onLoading () {
-      console.log(1)
-
       this.page = this.page + 1
       this.total = this.total + 10
       let data = {
@@ -107,12 +183,80 @@ export default {
         page: this.page
       }
       this.getMsgList(data, this.page)
+    },
+    // 商户确认退款
+    MerAgreeRefund () {
+      let data = {
+        promoter: 2,
+        orderId: this.editOrderId,
+        userId: this.getUserId()
+      }
+      this.$http.MerAgreeRefund(data).then(resp => {
+        this.$toast.success('已确认退货申请')
+        this.show = false
+        let timer = null
+        timer = setTimeout(() => {
+          this.init()
+          clearTimeout(timer)
+        }, 1000)
+      })
+    },
+    // 确认完成退货
+    ensureRefundCompleted () {
+      let data = {
+        promoter: 2,
+        userId: this.getUserId(),
+        orderId: this.editOrderId
+      }
+      this.$http.userEnsureRefund(data).then(resp => {
+        this.$toast.success('已确认退货完成')
+        this.show1 = false
+        let timer = null
+        timer = setTimeout(() => {
+          this.init()
+          clearTimeout(timer)
+        }, 1000)
+      })
+    },
+    // 确认发货
+    ensureOrderSend () {
+      let data = {
+        merId: this.getMerId(),
+        orderId: this.editOrderId
+      }
+      this.$http.ensureOrderSend(data).then(resp => {
+        this.$toast.success('已确定发货')
+        this.show2 = false
+        let timer = null
+        timer = setTimeout(() => {
+          this.init()
+          clearTimeout(timer)
+        }, 1000)
+      })
+    },
+    delOrder (id) {
+      this.$dialog.confirm({
+        message: '确定删除吗？',
+        confirmButtonColor: '#FFD200'
+      }).then(() => {
+        let data = {
+          orderId: id,
+          merId: this.getMerId()
+        }
+        this.$http.MerDelOrder(data).then(resp => {
+          this.$toast.success('删除成功')
+          let timer = null
+          timer = setTimeout(() => {
+            this.init()
+            clearTimeout(timer)
+          }, 1000)
+        })
+      })
     }
   },
   mounted () {
     this.setBackName('shop-management')
-    let data = { merId: this.getMerId() }
-    this.getMsgList(data)
+    this.init()
   },
 }
 </script>
@@ -182,6 +326,12 @@ export default {
           font-size: 0.15rem;
           font-weight: 600;
           color: #fc6060;
+        }
+        i {
+          font-family: PingFangSC-Semibold, PingFang SC;
+          font-size: 0.15rem;
+          font-weight: 600;
+          color: #6dd400;
         }
       }
     }
@@ -275,6 +425,71 @@ export default {
   }
   .msg-item-nomargin {
     margin-bottom: 0;
+  }
+}
+.dialog-confirm {
+  position: fixed;
+  z-index: 99;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  padding: 0 0.18rem;
+  width: 3.15rem;
+  height: 2.55rem;
+  background: #fff;
+  border-radius: 0.15rem;
+  .t-title {
+    height: 0.48rem;
+    text-align: center;
+    line-height: 0.48rem;
+    position: relative;
+    button {
+      position: absolute;
+      left: 0;
+      top: 0.18rem;
+      height: 0.14rem;
+      .van-icon {
+        display: block;
+      }
+    }
+    span {
+      font-size: 0.16rem;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 1);
+    }
+  }
+  .content {
+    width: 2.59rem;
+    height: 0.37rem;
+    position: absolute;
+    left: 0.28rem;
+    top: 0.85rem;
+    line-height: 0.23rem;
+    p {
+      height: 100%;
+      font-weight: 400;
+      color: rgba(144, 144, 144, 1);
+      text-align: center;
+    }
+  }
+  .ok-btn {
+    position: absolute;
+    top: 1.58rem;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: 2.55rem;
+    height: 0.6rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 1);
+    border-radius: 0.3rem;
+    border: 4px solid rgba(255, 210, 0, 1);
+    line-height: 0.56rem;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 210, 0, 1);
   }
 }
 </style>

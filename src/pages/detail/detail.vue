@@ -20,7 +20,7 @@
       <div class="info">
         <div class="info-top">
           <div class="price">￥<span>{{information.price && information.price.split('.')[0]}}</span>.{{information.price && information.price.split('.')[1]}}</div>
-          <div class="inventory">库存：{{information.number == 0 ? '不限量' : information.number}}</div>
+          <div class="inventory">库存：{{information.numberType == 1 ? '不限量' : (information.number<1 ? '缺货' : information.number)}}</div>
         </div>
         <div class="info-title">{{information.title}}</div>
         <div class="explain">
@@ -95,12 +95,16 @@ export default {
       })
     },
     buy () {
-      this.$router.push({
-        name: 'confirm-order',
-        params: {
-          id: this.id
-        }
-      })
+      if (this.information.numberType != 1 && this.information.number < 1) {
+        this.$toast.fail('该商品暂时缺货')
+        return
+      }
+        this.$router.push({
+          name: 'confirm-order',
+          params: {
+            id: this.id
+          }
+        })
     },
     init (newVal, oldVa) {
       this.id = newVal.params.id

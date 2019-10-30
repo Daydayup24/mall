@@ -57,10 +57,10 @@
              v-else-if="item.status==0 && !isOverdue(item.createTime)">
           <button>立即支付</button>
         </div>
-        <div class="refund"
+        <!-- <div class="refund"
              v-else-if="item.status==-2">
           <button @click="show2=true">确认退款</button>
-        </div>
+        </div> -->
         <div class="refund"
              v-else></div>
       </div>
@@ -130,8 +130,8 @@
       <div class="ok-btn"
            @click="ensureRefund">确 认</div>
     </div>
-    <van-overlay :show="show2"
-                 :z-index="10" />
+    <!-- <van-overlay :show="show2"
+                 :z-index="10" /> -->
   </div>
 </template>
 

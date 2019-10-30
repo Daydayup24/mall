@@ -11,35 +11,41 @@
     </div>
     <div class="list"
          v-else>
-      <div class="list-item"
-           v-for="item in products"
-           :key="item.id">
-        <div class="desc"
-             @click="goDetail(item.id)">
-          <div class="desc-img">
-            <img :src="item.headImage" />
+      <van-list v-model="loading"
+                :finished="finished"
+                finished-text="没有更多了"
+                @load="onLoading"
+                :immediate-check="false">
+        <div :class="i==products.length-1 ? 'list-item list-item-finished' : 'list-item'"
+             v-for="(item, i) in products"
+             :key="item.id">
+          <div class="desc"
+               @click="goDetail(item.id)">
+            <div class="desc-img">
+              <img :src="item.headImage" />
+            </div>
+            <div class="desc-info">
+              <div class="text">{{item.title}}</div>
+              <div class="price"><span>￥</span>{{item.price.split('.')[0]}}<span>.{{item.price.split('.')[1]}}</span></div>
+              <div class="inventory">库存：{{item.number}}</div>
+            </div>
           </div>
-          <div class="desc-info">
-            <div class="text">{{item.title}}</div>
-            <div class="price"><span>￥</span>{{item.price.split('.')[0]}}<span>.{{item.price.split('.')[1]}}</span></div>
-            <div class="inventory">库存：{{item.number}}</div>
+          <div class="edit-btn">
+            <div class="btn share"
+                 @click="share(item.id)">
+              <span>分享</span>
+            </div>
+            <div class="btn edit"
+                 @click="shopEdit(item.id)">
+              <span>编辑</span>
+            </div>
+            <div class="btn del"
+                 @click="del(item.id)">
+              <span>删除</span>
+            </div>
           </div>
         </div>
-        <div class="edit-btn">
-          <div class="btn share"
-               @click="share(item.id)">
-            <span>分享</span>
-          </div>
-          <div class="btn edit"
-               @click="shopEdit(item.id)">
-            <span>编辑</span>
-          </div>
-          <div class="btn del"
-               @click="del(item.id)">
-            <span>删除</span>
-          </div>
-        </div>
-      </div>
+      </van-list>
     </div>
     <div class="btn-msg"
          @click="goMessage">
@@ -66,11 +72,45 @@ export default {
       userId: this.$store.state.userId,
       merId: this.$store.state.merId,
       products: [],
-      scanCount: 0
+      scanCount: 0,
+      loading: false,
+      finished: false,
+      page: 1,
+      total: 10
     }
   },
   components: {},
   methods: {
+    init () {
+      let data = { merId: this.merId }
+      this.page = 1
+      this.total = 10
+      this.getProducts(data)
+    },
+    getProducts (params, page = 1) {
+      this.$http.getMerchantsShopList(params).then(resp => {
+        this.loading = true
+        if (resp.code === 1) {
+          let list = resp.data.products
+          this.products = page == 1 ? list : this.products.concat(list)
+        }
+        this.scanCount = resp.data.scanCount > 99 ? '99+' : resp.data.scanCount
+        let { total } = resp.data
+        if (this.total >= total) {
+          this.finished = true
+        }
+        this.loading = false
+      })
+    },
+    onLoading () {
+      this.page = this.page + 1
+      this.total = this.total + 10
+      let data = {
+        merId: this.merId,
+        page: this.page
+      }
+      this.getProducts(data, this.page)
+    },
     shopEdit (id) {
       this.$router.push({
         name: 'shop-upload',
@@ -82,18 +122,16 @@ export default {
     del (id) {
       this.$dialog.confirm({
         message: '确定删除吗？',
-        confirmButtonColor: '#FFD200',
-        confirm: id => {
-          let data = {
-            productId: id,
-            merId: this.merId
-          }
-          this.$http.deleteShop(data).then(resp => {
-            // console.log(resp)
-          })
+        confirmButtonColor: '#FFD200'
+      }).then(() => {
+        let data = {
+          productId: id,
+          merId: this.merId
         }
-      }).catch(() => {
-      })
+        this.$http.deleteShop(data).then(resp => {
+          // console.log(resp)
+        })
+      }).catch(() => { })
     },
     share (id) {
 
@@ -111,13 +149,7 @@ export default {
     }
   },
   mounted () {
-    let data = {
-      merId: this.merId
-    }
-    this.$http.getMerchantsShopList(data).then(resp => {
-      this.products = resp.data.products
-      this.scanCount = resp.data.scanCount > 99 ? '99+' : resp.data.scanCount
-    })
+    this.init()
   }
 }
 </script>
@@ -286,7 +318,7 @@ export default {
         }
       }
     }
-    .list-item:nth-last-child(1) {
+    .list-item-finished {
       margin-bottom: 0;
     }
   }
