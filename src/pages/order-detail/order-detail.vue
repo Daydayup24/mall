@@ -154,7 +154,7 @@ export default {
         orderId: this.$route.params.orderId
       }
       this.$http.ensureTrade(data).then(resp => {
-        if (resp.code === 1) {
+        if (resp && resp.code === 1) {
           this.$toast.success('收货成功')
           this.show = false
         }
@@ -167,7 +167,7 @@ export default {
         remark: this.isSelectedFirst ? '我要退款（无需退货）' : '我要退货退款'
       }
       this.$http.returnTrade(data).then(resp => {
-        if (resp.code === 1) {
+        if (resp && resp.code === 1) {
           this.$toast.success('退款申请成功')
         }
         this.show1 = false
@@ -183,7 +183,7 @@ export default {
     let { orderId } = this.$route.params
     let data = { userId, orderId }
     this.$http.getOrderDetail(data).then(resp => {
-      if (resp.code === 1) {
+      if (resp && resp.code === 1) {
         this.detailData = resp.data
       }
     })

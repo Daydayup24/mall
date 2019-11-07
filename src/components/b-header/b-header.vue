@@ -16,7 +16,7 @@
 
 <script type="text/ecmascript-6">
 import routes from '@/router/routes'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 export default {
   name: "BHeader",
   data () {
@@ -27,8 +27,21 @@ export default {
   components: {},
   methods: {
     ...mapGetters(['getBackToName', 'getProductId']),
+    ...mapMutations(['setProductId']),
     goBack () {
+      let u = navigator.userAgent, app = navigator.appVersion
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1 //如果输出结果是true就判定是android终端或者uc浏览器
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) //根据输出结果true或者false来判断ios终端
       console.log('goback', this.getBackToName())
+      if (this.getBackToName() === null) {
+        this.setProductId('') // 关闭浏览器清空productId
+        if (isAndroid) {
+          window.Android.backToApp()
+        } else if (isiOS) {
+          window.webkit.messageHandlers.closeWeb.postMessage('')
+        }
+        return
+      }
       let id = this.getProductId()
       let name = this.getBackToName()
       this.$router.push({
@@ -39,17 +52,31 @@ export default {
       })
     },
     close () {
-      this.$router.push('/')
+      let u = navigator.userAgent, app = navigator.appVersion
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      this.setProductId('') // 关闭浏览器清空productId
+      if (isAndroid) {
+        window.Android.backToApp()
+      } else if (isiOS) {
+        window.webkit.messageHandlers.closeWeb.postMessage('')
+      }
     },
     listeningBack () {
-      // var that = this //window.onpopstate方法指向window,所以要储存一下当前的vue实例
-      // window.addEventListener('popstate', e => {
-      //   that.goBack()
-      // }, false)
+      window.history.pushState(null, null, document.URL)
+      window.addEventListener("popstate", this.goBack, false)
     }
   },
   mounted () {
-    this.listeningBack()
+    // this.listeningBack()
+    var u = navigator.userAgent, app = navigator.appVersion
+    var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //如果输出结果是true就判定是android终端或者uc浏览器
+    var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //根据输出结果true或者false来判断ios终端
+  },
+  watch: {
+    $route (to, from) {
+      this.listeningBack()
+    }
   }
 }
 </script>
@@ -73,9 +100,9 @@ export default {
     left: 0.49rem;
   }
   .title {
-    
-    width: 1.2rem;
+    width: 100%;
     height: 0.22rem;
+    z-index: -1;
     position: absolute;
     top: 0;
     left: 0;

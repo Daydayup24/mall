@@ -14,6 +14,8 @@
 
 <script>
 import BHeader from './components/b-header/b-header'
+import { mapMutations } from 'vuex'
+
 export default {
   name: 'App',
   data () {
@@ -24,6 +26,22 @@ export default {
     BHeader
   },
   methods: {
+    ...mapMutations(['setUserId', 'setMerId']),
+    getParams (data) {
+      let userInfo = JSON.parse(data)
+      this.setUserId(userInfo.userId)
+      this.setMerId(userInfo.merId)
+    }
+  },
+  mounted () {
+    let that = this
+    window.onload = function () {
+      window.getParams = that.getParams
+    }
+    // setTimeout(() => {
+    //   this.setUserId(123)
+    //   this.setMerId(456)
+    // })
   }
 }
 </script>
@@ -143,6 +161,7 @@ input::-webkit-input-placeholder {
   font-family: PingFangSC-Regular, PingFangSC-Semibold, PingFang SC;
   font-size: 0.14rem;
   font-weight: 400;
+  color: #000;
 
   .app-header {
     height: 0.44rem;

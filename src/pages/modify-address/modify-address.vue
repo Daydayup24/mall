@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div class="modify-address">
     <address-edit :action="action"
                   :consignee="consignee"
                   :tel="tel"
@@ -49,4 +49,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.modify-address {
+  height: 100%;
+}
 </style>

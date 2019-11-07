@@ -5,7 +5,8 @@
       <input type="text"
              placeholder="请输入标题"
              v-model="title"
-             @focus="titleNull=false" />
+             @focus="titleNull=false;stopScroll"
+             @blur="removeStopScroll" />
       <i v-show="titleNull">请输入标题!</i>
     </div>
     <div class="sc price">
@@ -13,26 +14,34 @@
       <input type="number"
              placeholder="￥0.00"
              v-model="price"
-             @focus="priceNull=false" />
-      <i v-show="priceNull">请输入价格!</i>
+             @focus="priceNull=false;stopScroll"
+             @blur="removeStopScroll" />
+      <i v-show="priceNull">请输入正确的价格!</i>
     </div>
     <div class="sc inventory">
       <p>库存(<span>数字“0”表示不限量)</span></p>
       <input type="number"
              placeholder="0"
-             v-model="number" />
+             v-model="number"
+             @focus="stopScroll"
+             @blur="removeStopScroll" />
     </div>
     <div class="sc desc">
       <p>商品描述</p>
       <textarea placeholder="请输入商品描述"
-                v-model="describe"></textarea>
+                v-model="describe"
+                @focus="stopScroll"
+                @blur="removeStopScroll"></textarea>
     </div>
-    <div class="up-footer">
+    <div class="up-footer"
+         @click="imgError=false"
+         v-show="hideShow">
       <van-uploader v-model="imageUpload"
                     multiple
                     :max-count="5"
                     preview-size=".6rem"
                     :after-read="afterRead" />
+      <i v-show="imgError">图片不得少于两张!</i>
     </div>
     <button class="btn-upload"
             @click="upload">发布商品</button>
@@ -59,7 +68,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: "",
@@ -68,6 +77,7 @@ export default {
       show: false,
       titleNull: false,
       priceNull: false,
+      imgError: false,
       title: '',
       price: '',
       number: 0,
@@ -75,25 +85,52 @@ export default {
       describe: '',
       imageUpload: [],
       productId: '',
-      backName: ''
+      backName: '',
+      docmHeight: document.documentElement.clientHeight || document.body.clientHeight,
+      showHeight: document.documentElement.clientHeight || document.body.clientHeight,
+      hideShow: true //显示或隐藏footer
     }
   },
   components: {},
   methods: {
     ...mapMutations(['setBackName', 'setProductId']),
+    ...mapGetters(['getMerId']),
+    stopScroll () {
+      document.body.addEventListener('touchmove', function (e) {
+        e = e || event
+        e.stopPropagation()
+        e.preventDefault()
+      })
+    },
+    removeStopScroll () {
+      document.body.removeEventListener('touchmove', function (e) {
+        e = e || event
+        e.stopPropagation()
+        e.preventDefault()
+      })
+    },
     upload () {
+      let priceReg = /^(?:0\.\d{0,1}[1-9]|(?!0)\d{1,6}(?:\.\d{0,1}[1-9])?)$/
+      let flag = true
       if (this.title === '') {
         this.titleNull = true
+        flag = false
       }
-      if (this.price === '') {
+      if (this.price === '' || !priceReg.test(this.price)) {
         this.priceNull = true
-      } else {
+        flag = false
+      }
+      if (this.imageUpload.length < 2) {
+        this.imgError = true
+        flag = false
+      }
+      if (flag) { // 验证通过
         let data = {
-          merId: 1,
+          merId: this.getMerId(),
           title: this.title,
           price: this.price,
           number: this.number,
-          numberType: this.number == 0 ? 1 : 2,
+          numberType: (this.number == 0 || this.number == '') ? 1 : 2,
           describe: this.describe,
           imageUpload: this.imageUpload
         }
@@ -112,11 +149,29 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      if (this.backName == 'detail') {
-        this.setProductId(this.$route.params.id)
+      // if (this.backName == 'detail') {
+      //   this.setProductId(this.$route.params.id)
+      // }
+      this.setBackName('shop-management')
+      //监听事件
+      window.onresize = () => {
+        return (() => {
+          this.showHeight = document.documentElement.clientHeight || document.body.clientHeight;
+        })()
       }
-      this.setBackName(this.backName)
     })
+  },
+  watch: {
+    //监听显示高度
+    showHeight: function () {
+      if (this.docmHeight > this.showHeight) {
+        //隐藏
+        this.hideShow = false
+      } else {
+        //显示
+        this.hideShow = true
+      }
+    }
   },
   beforeRouteEnter (to, from, next) {
     let { id } = to.params
@@ -142,7 +197,11 @@ export default {
         })
       })
     }
-    next()
+    else {
+      next(vm => {
+        vm.backName = from.name
+      })
+    }
   }
 }
 </script>
@@ -239,6 +298,23 @@ export default {
     height: 1rem;
     padding: 0.2rem 0.15rem 0.2rem 0.2rem;
     background: #fff;
+    position: relative;
+    i {
+      position: absolute;
+      right: 0.2rem;
+      font-size: 0.12rem;
+      color: #ee0a24;
+    }
+    i::before {
+      content: "";
+      display: inline-block;
+      width: 0.1rem;
+      height: 0.1rem;
+      vertical-align: middle;
+      margin-right: 2px;
+      background: url(../../assets/images/tuihuo.png) no-repeat center;
+      background-size: 100% 100%;
+    }
   }
 }
 .btn-upload {

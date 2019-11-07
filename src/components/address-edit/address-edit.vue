@@ -7,7 +7,8 @@
                id="consignee"
                placeholder="请输入收货人"
                v-model="private_consignee"
-               @focus="consigneeNull=false" />
+               @focus="consigneeFocus"
+               @blur="removeStopScroll" />
         <i v-show="consigneeNull">请输入收货人!</i>
       </div>
       <div class="form-item">
@@ -16,7 +17,8 @@
                id="tel"
                placeholder="请输入手机号"
                v-model="private_tel"
-               @focus="telNull=false; telError=false" />
+               @focus="telFocus"
+               @blur="removeStopScroll" />
         <i v-show="telNull">请输入手机号!</i>
         <i v-show="telError">手机号格式错误!</i>
       </div>
@@ -26,7 +28,7 @@
                id="address"
                placeholder="&gt;"
                readonly
-               @click="show=true;addressNull=false"
+               @focus="show=true;addressNull=false"
                v-model="private_address" />
         <i v-show="addressNull">请选择所在地区!</i>
       </div>
@@ -35,6 +37,8 @@
         <input type="text"
                id="detail-address"
                placeholder="如道路、门牌号、小区、楼栋号、单元室等"
+               @focus="addressFocus"
+               @blur="removeStopScroll"
                v-model="private_detail_address" />
       </div>
     </form>
@@ -42,12 +46,15 @@
       <span>设为默认</span>
       <i @click="default_switch"><em></em></i>
     </div>
-    <button class="ok-btn"
-            @click="confirmAdd"
-            v-if="action == 0">确认新增</button>
-    <button class="ok-btn"
-            @click="confirmModify(addressId)"
-            v-else>确认修改</button>
+    <div v-show="hideShow"
+         class="btn-footer">
+      <button class="ok-btn"
+              @click="confirmAdd"
+              v-if="action == 0">确认新增</button>
+      <button class="ok-btn"
+              @click="confirmModify(addressId)"
+              v-else>确认修改</button>
+    </div>
     <div class="area-list"
          v-show="show">
       <van-area :area-list="areaList"
@@ -60,7 +67,7 @@
 
 <script type="text/ecmascript-6">
 import areaList from '@/data/area'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: "AddressEdit",
@@ -112,11 +119,41 @@ export default {
       consigneeNull: false,
       telNull: false,
       telError: false,
-      addressNull: false
+      addressNull: false,
+      docmHeight: document.documentElement.clientHeight || document.body.clientHeight,
+      showHeight: document.documentElement.clientHeight || document.body.clientHeight,
+      hideShow: true //显示或隐藏button
     }
   },
   methods: {
     ...mapMutations(['setBackName']),
+    ...mapGetters(['getProductId']),
+    consigneeFocus () {
+      this.consigneeNull = false
+      this.stopScroll()
+    },
+    telFocus () {
+      this.telNull = false
+      this.telError = false
+      this.stopScroll()
+    },
+    addressFocus () {
+      this.stopScroll()
+    },
+    stopScroll () {
+      document.body.addEventListener('touchmove', function (e) {
+        e = e || event
+        e.stopPropagation()
+        e.preventDefault()
+      })
+    },
+    removeStopScroll () {
+      document.body.removeEventListener('touchmove', function (e) {
+        e = e || event
+        e.stopPropagation()
+        e.preventDefault()
+      })
+    },
     onCancel () {
       this.show = false
     },
@@ -199,7 +236,30 @@ export default {
     }
   },
   mounted () {
-    this.setBackName('my-address')
+    let productId = this.getProductId()
+    if (productId) {
+      this.setBackName('confirm-order')
+    } else {
+      this.setBackName('my-address')
+    }
+    //监听事件
+    window.onresize = () => {
+      return (() => {
+        this.showHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      })()
+    }
+  },
+  watch: {
+    //监听显示高度
+    showHeight: function () {
+      if (this.docmHeight > this.showHeight) {
+        //隐藏
+        this.hideShow = false
+      } else {
+        //显示
+        this.hideShow = true
+      }
+    }
   }
 }
 </script>
@@ -217,6 +277,8 @@ export default {
 }
 .address-edit {
   height: 100%;
+  display: flex;
+  flex-direction: column;
   form {
     height: 2.8rem;
     padding: 0.3rem 0.2rem 0;
@@ -294,20 +356,26 @@ export default {
     }
   }
 }
-.ok-btn {
-  position: fixed;
-  bottom: 1rem;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: 2.55rem;
-  height: 0.6rem;
-  background: rgba(0, 0, 0, 1);
-  border-radius: 0.3rem;
-  border: 4px solid rgba(255, 210, 0, 1);
-  font-size: 0.16rem;
-  font-family: PingFangSC-Semibold, PingFang SC;
-  font-weight: 600;
-  color: rgba(255, 210, 0, 1);
+.btn-footer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .ok-btn {
+    // position: fixed;
+    // bottom: 1rem;
+    // left: 0;
+    // right: 0;
+    // margin: 0 auto;
+    width: 2.55rem;
+    height: 0.6rem;
+    background: rgba(0, 0, 0, 1);
+    border-radius: 0.3rem;
+    border: 4px solid rgba(255, 210, 0, 1);
+    font-size: 0.16rem;
+    font-family: PingFangSC-Semibold, PingFang SC;
+    font-weight: 600;
+    color: rgba(255, 210, 0, 1);
+  }
 }
 </style>

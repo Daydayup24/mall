@@ -3,8 +3,8 @@ import qs from 'qs'
 import { Toast } from 'vant'
 
 const ajax = axios.create({
-  timeout: 1000 * 12,
-  baseURL: 'http://192.168.0.13:8090'
+  timeout: 1000 * 15,
+  baseURL: 'http://mall.gchating.com'
 })
 
 let toast = null
@@ -149,4 +149,9 @@ export const MerDelOrder = params => {
 // 商家订单发货
 export const ensureOrderSend = params => {
   return ajax.post('/content/api/product-send', params)
+}
+
+// 清除历史足迹
+export const clearHistory = params => {
+  return ajax.post('/content/api/user-scan-delete', params)
 }

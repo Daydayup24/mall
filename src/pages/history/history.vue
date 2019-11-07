@@ -9,7 +9,7 @@
     </div>
 
     <div class="list"
-         v-else>
+         v-if="historyList.length">
       <div class="list-item"
            v-for="item in historyList"
            :key="item.id">
@@ -31,12 +31,13 @@
         </div>
       </div>
     </div>
-    <button :class="historyList.length==0 ? 'clear clear-grey' : 'clear'">清除记录</button>
+    <div :class="historyList.length ? 'clear' : 'clear  clear-grey'"
+         @click="clearHistory"><span>清除记录</span></div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: "",
@@ -47,12 +48,30 @@ export default {
   },
   components: {},
   methods: {
-    ...mapGetters(['getUserId'])
+    ...mapGetters(['getUserId']),
+    ...mapMutations(['setBackName']),
+    clearHistory () {
+      if (!this.historyList.length) {
+        return
+      }
+      this.$dialog.confirm({
+        message: '确定清除吗？',
+        confirmButtonColor: '#FFD200'
+      }).then(() => {
+        let data = {
+          userId: this.getUserId()
+        }
+        this.$http.clearHistory(data).then(resp => {
+          this.$toast.success('清除成功')
+        })
+      }).catch(err => { })
+    }
   },
   mounted () {
+    this.setBackName(null)
     let data = { userId: this.getUserId() }
     this.$http.getHistory(data).then(resp => {
-      if (resp.code === 1) {
+      if (resp && resp.code === 1) {
         this.historyList = resp.data
       }
     })
@@ -170,10 +189,11 @@ export default {
   }
 }
 .clear {
-  position: fixed;
+  position: absolute;
   top: 0.12rem;
   right: 0.2rem;
   font-weight: 400;
+  z-index: 5;
 }
 .clear-grey {
   color: rgba(144, 144, 144, 1);

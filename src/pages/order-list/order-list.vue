@@ -7,7 +7,9 @@
                     v-model="searchValue"
                     show-action
                     shape="round"
-                    @search="onSearch">
+                    @search="onSearch"
+                    @focus="stopScroll"
+                    @blur="removeStopScroll">
           <div slot="action"
                @click="onSearch">搜索</div>
         </van-search>
@@ -73,6 +75,20 @@ export default {
   methods: {
     ...mapGetters(['getUserId']),
     ...mapMutations(['setBackName']),
+    stopScroll () {
+      document.body.addEventListener('touchmove', function (e) {
+        e = e || event
+        e.stopPropagation()
+        e.preventDefault()
+      })
+    },
+    removeStopScroll () {
+      document.body.removeEventListener('touchmove', function (e) {
+        e = e || event
+        e.stopPropagation()
+        e.preventDefault()
+      })
+    },
     reload () {
       let data = {
         userId: this.getUserId(),
@@ -105,7 +121,7 @@ export default {
       }
       this.$http.ensureTrade(data).then(resp => {
         this.$toast.success('收货成功')
-        this.$refs.listComponent.show = false
+        this.$refs.listComponent[0].show = false
         this.$forceUpdate()
         let timer = null
         timer = setTimeout(() => {
@@ -124,7 +140,7 @@ export default {
       this.$http.returnTrade(data).then(resp => {
         this.$toast.success('退款申请成功')
         // this.$set(this.$refs.listComponent, 'show1', false)
-        this.$refs.listComponent.show1 = false
+        this.$refs.listComponent[0].show1 = false
         this.$forceUpdate()
         let timer = null
         timer = setTimeout(() => {
@@ -142,7 +158,7 @@ export default {
       this.$http.userEnsureRefund(data).then(resp => {
         if (resp && resp.code === 1) {
           this.$toast.success('确认退款成功')
-          this.$refs.listComponent.show2 = false
+          this.$refs.listComponent[0].show2 = false
           this.$forceUpdate()
           let timer = null
           timer = setTimeout(() => {
@@ -155,7 +171,7 @@ export default {
     getOrderList (params, page = 1, index) {
       this.loading = true
       this.$http.getOrderList(params).then(resp => {
-        if (resp.code === 1) {
+        if (resp && resp.code === 1) {
           let list = resp.data.order
           this.orderList = page == 1 ? list : this.orderList.concat(list)
           if (index && index === 1) {
@@ -206,6 +222,7 @@ export default {
       this.getOrderList(data, 1, index)
     },
     onSearch () {
+      if (this.searchValue == '') return
       let data = {
         userId: this.getUserId(),
         content: this.searchValue,
@@ -226,6 +243,7 @@ export default {
     }
   },
   mounted () {
+    this.setBackName(null)
     let data = {
       userId: this.getUserId()
     }
@@ -283,9 +301,10 @@ export default {
   }
 }
 .address-btn {
-  position: fixed;
+  position: absolute;
   top: 0.12rem;
   right: 0.2rem;
   font-weight: 400;
+  z-index: 5;
 }
 </style>

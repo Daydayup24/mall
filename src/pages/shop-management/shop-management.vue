@@ -55,7 +55,7 @@
                              :info="scanCount"
                              v-else />
     </div>
-    <div class="l-footer">
+    <div class="l-footer" v-if="products.length != 0">
       <button class="btn-upload"
               @click="$router.push('/shop-upload')">继续上架</button>
     </div>
@@ -64,6 +64,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: "",
@@ -81,6 +82,8 @@ export default {
   },
   components: {},
   methods: {
+    ...mapMutations(['setBackName']),
+    ...mapGetters(['getUserId', 'getMerId']),
     init () {
       let data = { merId: this.merId }
       this.page = 1
@@ -90,7 +93,7 @@ export default {
     getProducts (params, page = 1) {
       this.$http.getMerchantsShopList(params).then(resp => {
         this.loading = true
-        if (resp.code === 1) {
+        if (resp && resp.code === 1) {
           let list = resp.data.products
           this.products = page == 1 ? list : this.products.concat(list)
         }
@@ -149,7 +152,14 @@ export default {
     }
   },
   mounted () {
-    this.init()
+    this.setBackName(null)
+    let timer = null
+    timer = setInterval(() => {
+      if (this.getUserId() && this.getMerId()) {
+        this.init()
+        clearInterval(timer)
+      }
+    })
   }
 }
 </script>

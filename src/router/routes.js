@@ -14,7 +14,7 @@ const Message = () => import('@/pages/message/message')
 const routes = [
   {
     path: '/',
-    redirect: '/detail/5'
+    redirect: '/history'
   },
   {
     path: '/shop-management',

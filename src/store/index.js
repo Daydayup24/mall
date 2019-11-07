@@ -6,7 +6,7 @@ Vue.use(Vuex)
 const state = {
   backToName: '',
   productId: '',
-  userId: '1q',
+  userId: 'ADAVAVCC',
   merId: '1'
 }
 
@@ -19,6 +19,9 @@ const mutations = {
   },
   setUserId(state, val) {
     state.userId = val
+  },
+  setMerId(state, val) {
+    state.merId = val
   }
 }
 

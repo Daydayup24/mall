@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div class="add-address">
     <address-edit :param="$route.params" />
   </div>
 </template>
@@ -26,4 +26,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.add-address {
+  height: 100%;
+}
 </style>

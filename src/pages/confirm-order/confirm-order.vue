@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="order-shop">
-        <div class="item-header"> 
+        <div class="item-header">
           <!-- <div class="shop-avatar"></div> -->
           <div class="shop-name">奔跑的蜗牛</div>
           <div class="right">
@@ -68,8 +68,8 @@
         </div>
       </div>
       <!-- 占位 -->
-      <div class="footer-flag"></div>
-      <div class="order-footer">
+      <div class="footer-flag" v-show="hideShow"></div>
+      <div class="order-footer" v-show="hideShow">
         <span>￥<i>{{parseInt(totalPrice)}}</i>.{{totalPrice.toString().split('.')[1]}}</span>
         <button @click="createOrder">提交订单</button>
       </div>
@@ -89,7 +89,10 @@ export default {
       productId: '',
       totalPrice: 0,
       haveAddress: true,
-      nowAddressInfo: ''
+      nowAddressInfo: '',
+      docmHeight: document.documentElement.clientHeight || document.body.clientHeight,
+      showHeight: document.documentElement.clientHeight || document.body.clientHeight,
+      hideShow: true //显示或隐藏footer
     }
   },
   components: {},
@@ -126,7 +129,7 @@ export default {
         addressId: this.nowAddressInfo.id
       }
       this.$http.createOrder(data).then(res => {
-        if (res.code === 1) {
+        if (res && res.code === 1) {
           this.$router.push('/payment-success')
         }
       })
@@ -160,6 +163,24 @@ export default {
       this.infor = data
       this.totalPrice = this.infor.price
     })
+    //监听事件
+    window.onresize = () => {
+      return (() => {
+        this.showHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      })()
+    }
+  },
+  watch: {
+    //监听显示高度
+    showHeight: function () {
+      if (this.docmHeight > this.showHeight) {
+        //隐藏
+        this.hideShow = false
+      } else {
+        //显示
+        this.hideShow = true
+      }
+    }
   },
   beforeRouteEnter (to, from, next) {
     // 如果不存在id，跳转到404

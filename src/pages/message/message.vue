@@ -162,7 +162,7 @@ export default {
     getMsgList (params, page = 1) {
       this.$http.getMerMessage(params).then(resp => {
         this.loading = true
-        if (resp.code === 1) {
+        if (resp && resp.code === 1) {
           let list = resp.data.order
           this.msgList = page == 1 ? list : this.msgList.concat(list)
           this.msgList = this.msgList.filter(item => item.status != 0 || new Date().valueOf() - item.createTime * 1000 < 10 * 60 * 1000)

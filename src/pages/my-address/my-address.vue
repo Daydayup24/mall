@@ -67,7 +67,7 @@ export default {
       userId: this.getUserId()
     }
     this.$http.getAddressList(data).then(resp => {
-      if (resp.code === 1) {
+      if (resp && resp.code === 1) {
         this.addressList = resp.data
       }
     })
@@ -130,9 +130,10 @@ export default {
   }
 }
 .address-add {
-  position: fixed;
+  position: absolute;
   top: 0.12rem;
   right: 0.2rem;
   font-weight: 400;
+  z-index: 5;
 }
 </style>

@@ -39,7 +39,7 @@
       <!-- <div class="btn-mer"
            v-if="$store.state.user.merId"> -->
       <div class="btn-mer"
-           v-if="false">
+           v-if="isMer">
         <button class="btn-edit"
                 @click="editShop">编辑商品</button>
         <button class="btn-share"
@@ -53,7 +53,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: "",
@@ -63,12 +63,15 @@ export default {
       show: false,
       startPosition: 0,
       information: '',
-      id: ''
+      id: '',
+      backName: '',
+      isMer: false
     }
   },
   components: {},
   methods: {
     ...mapMutations(['setProductId', 'setBackName']),
+    ...mapGetters(['getProductId', 'getMerId']),
     copyUrl () {
       this.$copyText(location.href).then((e) => {
         // success
@@ -90,7 +93,7 @@ export default {
       this.$router.push({
         name: 'shop-upload',
         params: {
-          id: this.id
+          id: this.getProductId()
         }
       })
     },
@@ -99,40 +102,60 @@ export default {
         this.$toast.fail('该商品暂时缺货')
         return
       }
-        this.$router.push({
-          name: 'confirm-order',
-          params: {
-            id: this.id
-          }
-        })
+      this.$router.push({
+        name: 'confirm-order',
+        params: {
+          id: this.getProductId()
+        }
+      })
     },
     init (newVal, oldVa) {
-      this.id = newVal.params.id
+      this.setProductId(newVal.params.id)
       this.getDetail()
     },
     getDetail () {
-      this.$http.getShopDetail({ productId: this.id }).then(resp => {
+      this.$http.getShopDetail({ productId: this.$route.params.id }).then(resp => {
         let { data } = resp
+        if (data.merId === this.getMerId()) { //判断是否是该商品商户
+          this.isMer = true
+        }
         this.information = data
         this.swiperList = data.image
       })
     }
   },
   mounted () {
-    this.setBackName('message')
-    console.log(this.$router)
-    this.id = this.$route.params.id;
+    this.id = this.$route.params.id
     this.getDetail()
     this.setProductId(this.id)
+    this.$nextTick(() => {
+      if (this.backName == 'shop-management') {
+        this.setBackName(this.backName)
+      } else {
+        this.setBackName(null)
+      }
+    })
   },
   watch: {
     $route: "init"
   },
+  // beforeRouteUpdate(to, from, next) {
+  //   this.setProductId(to.params.id)
+  //   console.log(to.params.id)
+  //   next()
+  // },
   beforeRouteLeave (to, from, next) {
     if (to.name !== 'confirm-order') {
       this.setProductId('')
     }
     next()
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (from.name == 'shop-management') {
+        vm.backName = from.name
+      }
+    })
   }
 }
 </script>
