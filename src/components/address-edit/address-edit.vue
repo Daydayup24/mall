@@ -195,15 +195,14 @@ export default {
 
       this.$http.addAddress(data).then(resp => {
         // 判断是否是从确认订单页面跳转过来的
-        if (this.param.act === 'buy') {
+        if (this.getProductId()) {
           this.$router.push({
             name: 'confirm-order',
             params: {
-              id: this.act.id
+              id: this.getProductId()
             }
           })
         }
-
         this.$router.push('/my-address')
       })
     },

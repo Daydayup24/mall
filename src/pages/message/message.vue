@@ -344,7 +344,6 @@ export default {
         min-width: 1.1rem;
         min-height: 1.1rem;
         margin-right: 0.2rem;
-        background: #f89;
         img {
           width: 100%;
           height: 100%;

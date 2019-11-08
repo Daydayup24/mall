@@ -14,24 +14,27 @@
            v-for="item in historyList"
            :key="item.id">
         <div class="item-header">
-          <div class="shop-avatar"></div>
+          <!-- <div class="shop-avatar"></div> -->
           <div class="shop-name">奔跑的蜗牛</div>
           <div class="right">
             <van-icon name="arrow"
                       size=".14rem" />
           </div>
         </div>
-        <div class="desc">
-          <div class="desc-img"></div>
+        <div class="desc"
+             @click="goDetail(item.id)">
+          <div class="desc-img">
+            <img :src="item.headImage" />
+          </div>
           <div class="desc-info">
             <div class="text">{{item.title}}</div>
-            <div class="price"><span>￥</span>{{123.44 | getParseInt}}<span>.{{123.44 | getFloat}}</span></div>
-            <!-- <div class="inventory">库存：123</div> -->
+            <div class="price"><span>￥</span>{{item.price | getParseInt}}<span>.{{item.price | getFloat}}</span></div>
+            <div class="inventory">浏览时间：{{item.createTime}}</div>
           </div>
         </div>
       </div>
     </div>
-    <div :class="historyList.length ? 'clear' : 'clear  clear-grey'"
+    <div :class="historyList.length ? 'clear' : 'clear clear-grey'"
          @click="clearHistory"><span>清除记录</span></div>
   </div>
 </template>
@@ -50,6 +53,14 @@ export default {
   methods: {
     ...mapGetters(['getUserId']),
     ...mapMutations(['setBackName']),
+    goDetail (id) {
+      this.$router.push({
+        name: 'detail',
+        params: {
+          id
+        }
+      })
+    },
     clearHistory () {
       if (!this.historyList.length) {
         return
@@ -146,10 +157,13 @@ export default {
         padding-bottom: 0.2rem;
         border-bottom: 1px solid rgba(241, 244, 251, 1);
         .desc-img {
-          width: 1.1rem;
-          height: 1.1rem;
+          min-width: 1.1rem;
+          min-height: 1.1rem;
           margin-right: 0.2rem;
-          background: #f89;
+          img {
+            width: 100%;
+            height: 100%;
+          }
         }
         .desc-info {
           .text {

@@ -318,7 +318,7 @@ export default {
   }
 }
 .btn-upload {
-  position: fixed;
+  position: absolute;
   top: 1px;
   right: 0.13rem;
   width: 0.96rem;

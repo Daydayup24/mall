@@ -305,7 +305,6 @@ export default {
         width: 1.1rem;
         height: 1.1rem;
         margin-right: 0.2rem;
-        background: #f89;
       }
       .desc-info {
         .text {

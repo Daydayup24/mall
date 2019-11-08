@@ -268,7 +268,6 @@ export default {
       .desc-img {
         min-width: 1.1rem;
         min-height: 1.1rem;
-        background: #f89;
         img {
           width: 100%;
           height: 100%;

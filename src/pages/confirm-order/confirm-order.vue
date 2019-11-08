@@ -68,8 +68,10 @@
         </div>
       </div>
       <!-- 占位 -->
-      <div class="footer-flag" v-show="hideShow"></div>
-      <div class="order-footer" v-show="hideShow">
+      <div class="footer-flag"
+           v-show="hideShow"></div>
+      <div class="order-footer"
+           v-show="hideShow">
         <span>￥<i>{{parseInt(totalPrice)}}</i>.{{totalPrice.toString().split('.')[1]}}</span>
         <button @click="createOrder">提交订单</button>
       </div>
@@ -121,6 +123,10 @@ export default {
       })
     },
     createOrder () {
+      if (!this.haveAddress) {
+        this.$toast('\n请填写收货地址\n\n')
+        return
+      }
       let data = {
         userId: this.getUserId(),
         productId: this.getProductId(),
@@ -130,7 +136,20 @@ export default {
       }
       this.$http.createOrder(data).then(res => {
         if (res && res.code === 1) {
-          this.$router.push('/payment-success')
+          // this.$router.push('/payment-success')
+        }
+      })
+      this.$dialog.alert({
+        message: '余额不足',
+        confirmButtonColor: '#FFD200'
+      }).then(() => {
+        let u = navigator.userAgent, app = navigator.appVersion
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+        let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+        if (isAndroid) {
+          window.Android.toCharge()
+        } else if (isiOS) {
+          window.webkit.messageHandlers.toCharge.postMessage('')
         }
       })
     }

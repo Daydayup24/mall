@@ -71,7 +71,7 @@ export default {
   components: {},
   methods: {
     ...mapMutations(['setProductId', 'setBackName']),
-    ...mapGetters(['getProductId', 'getMerId']),
+    ...mapGetters(['getProductId', 'getMerId', 'getUserId']),
     copyUrl () {
       this.$copyText(location.href).then((e) => {
         // success
@@ -114,7 +114,11 @@ export default {
       this.getDetail()
     },
     getDetail () {
-      this.$http.getShopDetail({ productId: this.$route.params.id }).then(resp => {
+      let data = {
+        userId: this.getUserId(),
+        productId: this.$route.params.id
+      }
+      this.$http.getShopDetail(data).then(resp => {
         let { data } = resp
         if (data.merId === this.getMerId()) { //判断是否是该商品商户
           this.isMer = true
@@ -129,7 +133,7 @@ export default {
     this.getDetail()
     this.setProductId(this.id)
     this.$nextTick(() => {
-      if (this.backName == 'shop-management') {
+      if (this.backName == 'shop-management' || this.backName == 'history') {
         this.setBackName(this.backName)
       } else {
         this.setBackName(null)
@@ -152,7 +156,7 @@ export default {
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      if (from.name == 'shop-management') {
+      if (from.name == 'shop-management' || from.name == 'history') {
         vm.backName = from.name
       }
     })

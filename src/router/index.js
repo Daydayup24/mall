@@ -5,7 +5,7 @@ import routes from './routes'
 Vue.use(Router)
 
 export default new Router({
-  base: '/mall',
+  base: '/mall/',
   mode: 'history',
   routes
 })

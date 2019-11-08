@@ -132,6 +132,8 @@ export default {
           merId: this.merId
         }
         this.$http.deleteShop(data).then(resp => {
+          this.$toast.success('删除成功')
+          this.init()
           // console.log(resp)
         })
       }).catch(() => { })
