@@ -292,7 +292,7 @@ export default {
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
-      overflow-y: auto;
+      overflow-y: scroll;
       .autoFlex {
         flex: 1;
         background: #f7f8fb;

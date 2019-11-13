@@ -199,7 +199,7 @@ export default {
 .order-detail {
   height: 100%;
   overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
   .img-daifahuo {
     background: url(../../assets/images/daifahuo.png) no-repeat center;
   }

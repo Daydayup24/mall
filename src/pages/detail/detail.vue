@@ -38,15 +38,19 @@
 
       <!-- <div class="btn-mer"
            v-if="$store.state.user.merId"> -->
+      <div class="check"
+           v-if="status!=1">
+        <span class="checking">商品审核中</span>
+      </div>
       <div class="btn-mer"
-           v-if="isMer">
+           v-else-if="isMer && status==1">
         <button class="btn-edit"
                 @click="editShop">编辑商品</button>
         <button class="btn-share"
                 @click="copyUrl">分享商品</button>
       </div>
       <button class="btn-buy"
-              v-else
+              v-else-if="!isMer && status==1"
               @click="buy">立即购买</button>
     </div>
   </div>
@@ -65,7 +69,8 @@ export default {
       information: '',
       id: '',
       backName: '',
-      isMer: false
+      isMer: false,
+      status: 0
     }
   },
   components: {},
@@ -125,6 +130,7 @@ export default {
         }
         this.information = data
         this.swiperList = data.image
+        this.status = data.status
       })
     }
   },
@@ -178,7 +184,7 @@ export default {
   .detail-main {
     flex: 1;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
     .info {
       padding: 0 0.2rem;
       .info-top {
@@ -259,6 +265,26 @@ export default {
       }
       .btn-share {
         background: rgba(255, 210, 0, 1);
+      }
+    }
+    .check {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 0.28rem;
+      .checking {
+        font-weight: 600;
+        color: rgba(0, 0, 0, 1);
+      }
+      .checking::before {
+        content: "";
+        display: inline-block;
+        vertical-align: middle;
+        width: 0.12rem;
+        height: 0.12rem;
+        margin-right: 0.04rem;
+        background: url(../../assets/images/fahuo.png) no-repeat center;
+        background-size: 100% 100%;
       }
     }
   }

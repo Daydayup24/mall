@@ -36,15 +36,35 @@
     <div class="up-footer"
          @click="imgError=false"
          v-show="hideShow">
-      <van-uploader v-model="imageUpload"
+      <!-- <van-uploader v-model="imageUpload"
                     multiple
                     :max-count="5"
-                    preview-size=".6rem"
-                    :after-read="afterRead" />
+                    preview-size=".6rem">
+      </van-uploader> -->
+      <div v-for="(item, i) in imageUpload"
+           :key="i"
+           :class="i==4 ? 'up-imgs-item up-imgs-item-last' : 'up-imgs-item'">
+        <img :src="item"
+             @click="viewImage(item)" />
+        <van-icon name="cross"
+                  size=".1rem"
+                  color="#fff"
+                  @click="delPhoto(i)" />
+      </div>
+      <div class="uploader"
+           v-show="imageUpload.length<5"
+           @click="openMobilePhotoAlbum">
+        <van-icon name="plus"
+                  size=".3rem"
+                  color="#ccc" />
+      </div>
       <i v-show="imgError">图片不得少于两张!</i>
     </div>
     <button class="btn-upload"
             @click="upload">发布商品</button>
+    <van-image-preview v-model="imgShow"
+                       :images="imgPreView"
+                       :show-index="false" />
     <!-- 弹框 -->
     <div class="dialog"
          v-show="show">
@@ -54,10 +74,10 @@
           <van-icon name="cross"
                     size=".14rem" />
         </button>
-        <span>发布成功</span>
+        <span>上架申请成功</span>
       </div>
       <div class="content">
-        <p>发布成功，该商品在审核通过后即可分享给好友购买！</p>
+        <p>上架申请成功，该商品在审核通过后即可分享给好友购买！</p>
         <p>审核期间将不可分享，不可编辑！</p>
       </div>
       <div class="ok-btn"
@@ -88,7 +108,9 @@ export default {
       backName: '',
       docmHeight: document.documentElement.clientHeight || document.body.clientHeight,
       showHeight: document.documentElement.clientHeight || document.body.clientHeight,
-      hideShow: true //显示或隐藏footer
+      hideShow: true, //显示或隐藏footer
+      imgShow: false,
+      imgPreView: []
     }
   },
   components: {},
@@ -108,6 +130,14 @@ export default {
         e.stopPropagation()
         e.preventDefault()
       })
+    },
+    delPhoto (i) {
+      this.imageUpload.splice(i, 1)
+    },
+    viewImage (item) {
+      this.imgShow = true
+      this.imgPreView.splice(0) // 清空数组
+      this.imgPreView.push(item)
     },
     upload () {
       let priceReg = /^(?:0\.\d{0,1}[1-9]|(?!0)\d{1,6}(?:\.\d{0,1}[1-9])?)$/
@@ -143,12 +173,23 @@ export default {
         })
       }
     },
-    afterRead (file) {
-      // console.log(this.imageUpload)
+    openMobilePhotoAlbum () { // 打开原生相册
+      let count = this.imageUpload.length // 已经选择了几张图片
+      window.webkit.messageHandlers.opemAlbum.postMessage(count)
+    },
+    getPhotos (data) {
+      let imgArr = data.split('|')
+      imgArr = imgArr.map(item => {
+        item = 'data:image/png;base64,' + item
+        return item
+      })
+      this.imageUpload = this.imageUpload.length ? this.imageUpload.concat(imgArr) : imgArr
     }
   },
   mounted () {
+    window.getPhotos = this.getPhotos
     this.$nextTick(() => {
+
       // if (this.backName == 'detail') {
       //   this.setProductId(this.$route.params.id)
       // }
@@ -190,7 +231,7 @@ export default {
           let { image } = data
           let img = []
           image.forEach(item => {
-            img.push({ url: item })
+            img.push(item)
           })
           vm.imageUpload = img
           vm.productId = id
@@ -299,13 +340,50 @@ export default {
     padding: 0.2rem 0.15rem 0.2rem 0.2rem;
     background: #fff;
     position: relative;
-    i {
+    display: flex;
+    justify-content: flex-start;
+    .up-imgs-item {
+      width: 0.6rem;
+      height: 0.6rem;
+      margin-right: 0.1rem;
+      position: relative;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+      .van-icon-cross {
+        position: absolute;
+        right: -0.08rem;
+        top: -0.08rem;
+        background: #969799;
+        border-radius: 50%;
+        width: 0.18rem;
+        height: 0.18rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #fff;
+      }
+    }
+    .up-imgs-item-last {
+      margin-right: 0;
+    }
+    .uploader {
+      width: 0.6rem;
+      height: 0.6rem;
+      border: 1px dashed #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    > i {
       position: absolute;
       right: 0.2rem;
       font-size: 0.12rem;
       color: #ee0a24;
     }
-    i::before {
+    > i::before {
       content: "";
       display: inline-block;
       width: 0.1rem;

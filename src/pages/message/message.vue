@@ -266,7 +266,7 @@ export default {
   height: 100%;
   background: #f8f9fc;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
   .msg-item {
     width: 100%;
     height: 2.32rem;

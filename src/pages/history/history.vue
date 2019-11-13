@@ -61,6 +61,14 @@ export default {
         }
       })
     },
+    getHistoryList () {
+      let data = { userId: this.getUserId() }
+      this.$http.getHistory(data).then(resp => {
+        if (resp && resp.code === 1) {
+          this.historyList = resp.data
+        }
+      })
+    },
     clearHistory () {
       if (!this.historyList.length) {
         return
@@ -74,18 +82,14 @@ export default {
         }
         this.$http.clearHistory(data).then(resp => {
           this.$toast.success('清除成功')
+          this.getHistoryList()
         })
       }).catch(err => { })
     }
   },
   mounted () {
     this.setBackName(null)
-    let data = { userId: this.getUserId() }
-    this.$http.getHistory(data).then(resp => {
-      if (resp && resp.code === 1) {
-        this.historyList = resp.data
-      }
-    })
+    this.getHistoryList()
   }
 }
 </script>

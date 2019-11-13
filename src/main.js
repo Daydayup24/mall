@@ -21,7 +21,8 @@ import {
   Swipe,
   SwipeItem,
   ImagePreview,
-  List
+  List,
+  Image
 } from 'vant'
 
 Vue.use(Toast)
@@ -35,6 +36,7 @@ Vue.use(Stepper)
 Vue.use(Dialog)
 Vue.use(ImagePreview)
 Vue.use(List)
+Vue.use(Image)
 Vue.use(Tab).use(Tabs)
 Vue.use(Swipe).use(SwipeItem)
 

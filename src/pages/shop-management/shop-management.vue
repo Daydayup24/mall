@@ -20,7 +20,7 @@
              v-for="(item, i) in products"
              :key="item.id">
           <div class="desc"
-               @click="goDetail(item.id)">
+               @click="goDetail(item)">
             <div class="desc-img">
               <img :src="item.headImage" />
             </div>
@@ -30,7 +30,7 @@
               <div class="inventory">库存：{{item.number}}</div>
             </div>
           </div>
-          <div class="edit-btn">
+          <div class="edit-btn" v-if="item.status==1">
             <div class="btn share"
                  @click="share(item.id)">
               <span>分享</span>
@@ -38,6 +38,15 @@
             <div class="btn edit"
                  @click="shopEdit(item.id)">
               <span>编辑</span>
+            </div>
+            <div class="btn del"
+                 @click="del(item.id)">
+              <span>删除</span>
+            </div>
+          </div>
+          <div class="edit-btn" v-else>
+            <div class="btn audit">
+              <span>审核中</span>
             </div>
             <div class="btn del"
                  @click="del(item.id)">
@@ -141,11 +150,12 @@ export default {
     share (id) {
 
     },
-    goDetail (id) {
+    goDetail (item) {
+      if(item.status != 1) return
       this.$router.push({
         name: 'detail',
         params: {
-          id
+          id: item.id
         }
       })
     },
@@ -220,7 +230,7 @@ export default {
   .list {
     flex: 1;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
     .list-item {
       width: 100%;
       height: 1.91rem;
@@ -303,19 +313,19 @@ export default {
             margin-right: 0.04rem;
           }
         }
-        .btn:nth-child(1) {
+        .share {
           span::before {
             background: url(../../assets/images/share.png) no-repeat center;
             background-size: 100% 100%;
           }
         }
-        .btn:nth-child(2) {
+        .edit {
           span::before {
             background: url(../../assets/images/edit.png) no-repeat center;
             background-size: 100% 100%;
           }
         }
-        .btn:nth-child(3) {
+        .del {
           border-right: 0;
           span {
             color: rgba(252, 96, 96, 1);
@@ -325,6 +335,12 @@ export default {
             height: 0.13rem;
 
             background: url(../../assets/images/del.png) no-repeat center;
+            background-size: 100% 100%;
+          }
+        }
+        .audit {
+          span::before {
+            background: url(../../assets/images/fahuo.png) no-repeat center;
             background-size: 100% 100%;
           }
         }
