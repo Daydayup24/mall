@@ -141,18 +141,18 @@ export default {
       this.stopScroll()
     },
     stopScroll () {
-      document.body.addEventListener('touchmove', function (e) {
-        e = e || event
-        e.stopPropagation()
-        e.preventDefault()
-      })
+      // document.body.addEventListener('touchmove', function (e) {
+      //   e = e || event
+      //   e.stopPropagation()
+      //   e.preventDefault()
+      // })
     },
     removeStopScroll () {
-      document.body.removeEventListener('touchmove', function (e) {
-        e = e || event
-        e.stopPropagation()
-        e.preventDefault()
-      })
+      // document.body.removeEventListener('touchmove', function (e) {
+      //   e = e || event
+      //   e.stopPropagation()
+      //   e.preventDefault()
+      // })
     },
     onCancel () {
       this.show = false

@@ -3,18 +3,19 @@ import qs from 'qs'
 import { Toast } from 'vant'
 
 const ajax = axios.create({
-  timeout: 1000 * 15,
+  timeout: 1000 * 30,
   baseURL: 'http://mall.gchating.com'
 })
 
-let toast = null
+let toast1 = null
 // http请求拦截器
 ajax.interceptors.request.use(
   config => {
-    toast = Toast.loading({
+    toast1 = Toast.loading({
       message: '加载中...',
       loadingType: 'spinner',
-      forbidClick: true
+      forbidClick: true,
+      duration: 0
     })
     config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     if (config.method === 'post') {
@@ -28,19 +29,19 @@ ajax.interceptors.request.use(
   err => {
     let timer = setTimeout(() => {
       Toast.fail({
-        message: '加载超时',
+        message: '请求错误',
         forbidClick: true
       })
       clearTimeout(timer)
     }, 3000)
-    reject(err)
+    return Promise.reject(err)
   }
 )
 
 // http响应拦截器
 ajax.interceptors.response.use(
   data => {
-    toast.clear() // 相应成功关闭toast
+    toast1.clear() // 相应成功关闭toast
     if (data.data.code === 1) {
       return data.data
     }
@@ -57,7 +58,7 @@ ajax.interceptors.response.use(
       })
       clearTimeout(timer)
     }, 3000)
-    reject(err)
+    return Promise.reject(err)
   }
 )
 

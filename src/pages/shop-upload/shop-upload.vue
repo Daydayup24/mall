@@ -39,13 +39,15 @@
       <!-- <van-uploader v-model="imageUpload"
                     multiple
                     :max-count="5"
-                    preview-size=".6rem">
+                    preview-size=".6rem"
+                    :after-read="afterRead">
       </van-uploader> -->
       <div v-for="(item, i) in imageUpload"
            :key="i"
            :class="i==4 ? 'up-imgs-item up-imgs-item-last' : 'up-imgs-item'">
         <img :src="item"
-             @click="viewImage(item)" />
+             @click="viewImage(item)"
+             ref="img" />
         <van-icon name="cross"
                   size=".1rem"
                   color="#fff"
@@ -100,36 +102,40 @@ export default {
       imgError: false,
       title: '',
       price: '',
-      number: 0,
+      number: '',
       numberType: '',
       describe: '',
-      imageUpload: [],
       productId: '',
+      imageUpload: [],
       backName: '',
       docmHeight: document.documentElement.clientHeight || document.body.clientHeight,
       showHeight: document.documentElement.clientHeight || document.body.clientHeight,
       hideShow: true, //显示或隐藏footer
       imgShow: false,
-      imgPreView: []
+      imgPreView: [],
+      upImg_compress: []
     }
   },
   components: {},
   methods: {
     ...mapMutations(['setBackName', 'setProductId']),
     ...mapGetters(['getMerId']),
+    afterRead (file) {
+      console.log(file)
+    },
     stopScroll () {
-      document.body.addEventListener('touchmove', function (e) {
-        e = e || event
-        e.stopPropagation()
-        e.preventDefault()
-      })
+      // document.body.addEventListener('touchmove', function (e) {
+      //   e = e || event
+      //   e.stopPropagation()
+      //   e.preventDefault()
+      // })
     },
     removeStopScroll () {
-      document.body.removeEventListener('touchmove', function (e) {
-        e = e || event
-        e.stopPropagation()
-        e.preventDefault()
-      })
+      // document.body.removeEventListener('touchmove', function (e) {
+      //   e = e || event
+      //   e.stopPropagation()
+      //   e.preventDefault()
+      // })
     },
     delPhoto (i) {
       this.imageUpload.splice(i, 1)
@@ -139,8 +145,62 @@ export default {
       this.imgPreView.splice(0) // 清空数组
       this.imgPreView.push(item)
     },
+    dealImage (base64, w, callback) {
+      var newImage = new Image();
+      var quality = 0.6;    //压缩系数0-1之间
+      newImage.src = base64;
+      newImage.setAttribute("crossOrigin", 'Anonymous');	//url为外域时需要
+      var imgWidth, imgHeight;
+      newImage.onload = function () {
+        imgWidth = this.width;
+        imgHeight = this.height;
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        if (Math.max(imgWidth, imgHeight) > w) {
+          if (imgWidth > imgHeight) {
+            canvas.width = w;
+            canvas.height = w * imgHeight / imgWidth;
+          } else {
+            canvas.height = w;
+            canvas.width = w * imgWidth / imgHeight;
+          }
+        } else {
+          canvas.width = imgWidth;
+          canvas.height = imgHeight;
+          quality = 0.6;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(this, 0, 0, canvas.width, canvas.height);
+        var base64 = canvas.toDataURL("image/jpeg", quality); //压缩语句
+        // 如想确保图片压缩到自己想要的尺寸,如要求在50-150kb之间，请加以下语句，quality初始值根据情况自定
+        // while (base64.length / 1024 > 150) {
+        // 	quality -= 0.01;
+        // 	base64 = canvas.toDataURL("image/jpeg", quality);
+        // }
+        // 防止最后一次压缩低于最低尺寸，只要quality递减合理，无需考虑
+        // while (base64.length / 1024 < 50) {
+        // 	quality += 0.001;
+        // 	base64 = canvas.toDataURL("image/jpeg", quality);
+        // }
+        callback(base64);//必须通过回调函数返回，否则无法及时拿到该值
+      }
+    },
+    useImg (base64) {
+      var str = base64
+      this.upImg_compress.push(str)
+    },
+    getImgSize (base64url) {
+      //获取base64图片大小，返回KB数字
+      var str = base64url.replace('data:image/png;base64,', '');//这里根据自己上传图片的格式进行相应修改
+      var strLength = str.length;
+      var fileLength = parseInt(strLength - (strLength / 8) * 2);
+      // 由字节转换为KB
+      var size = "";
+      size = (fileLength / 1024).toFixed(2);
+      return parseInt(size);
+    },
     upload () {
-      let priceReg = /^(?:0\.\d{0,1}[1-9]|(?!0)\d{1,6}(?:\.\d{0,1}[1-9])?)$/
+      let priceReg = /^(?:0\.\d{0,1}[1-9]|(?!0)\d{1,6}(?:\.\d{0,1}[0-9])?)$/
       let flag = true
       if (this.title === '') {
         this.titleNull = true
@@ -155,6 +215,16 @@ export default {
         flag = false
       }
       if (flag) { // 验证通过
+        let size = 0
+        this.imageUpload.forEach(item => {
+          if (item.startsWith('data')) {
+            size += this.getImgSize(item)
+          }
+        })
+        if (size > 20 * 1024) {
+          this.$toast('上传的图片不能超过20M')
+          return
+        }
         let data = {
           merId: this.getMerId(),
           title: this.title,
@@ -164,11 +234,13 @@ export default {
           describe: this.describe,
           imageUpload: this.imageUpload
         }
+        //['data:image/png;base64,iVBORw0KGgo=','data:image/png;base64,iVBORw0KGgo=']
         // 有productId是修改，没有则是新增
         if (this.productId) {
           data.productId = this.productId
         }
         this.$http.uploadShop(data).then(resp => {
+          console.log(resp)
           this.show = true
         })
       }
@@ -178,12 +250,18 @@ export default {
       window.webkit.messageHandlers.opemAlbum.postMessage(count)
     },
     getPhotos (data) {
+      console.log(this.imageUpload)
+      data = `${data}`
       let imgArr = data.split('|')
       imgArr = imgArr.map(item => {
-        item = 'data:image/png;base64,' + item
+        item = `data:image/png;base64,${item}`
         return item
       })
-      this.imageUpload = this.imageUpload.length ? this.imageUpload.concat(imgArr) : imgArr
+      imgArr.forEach(item => {
+        let base64 = item
+        this.dealImage(base64, 500, this.useImg)
+      })
+      this.imageUpload = this.imageUpload.length ? [...this.imageUpload, ...imgArr] : [...imgArr]
     }
   },
   mounted () {
@@ -234,6 +312,7 @@ export default {
             img.push(item)
           })
           vm.imageUpload = img
+          vm.upImg_compress.push(img)
           vm.productId = id
         })
       })

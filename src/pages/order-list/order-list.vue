@@ -76,18 +76,18 @@ export default {
     ...mapGetters(['getUserId']),
     ...mapMutations(['setBackName']),
     stopScroll () {
-      document.body.addEventListener('touchmove', function (e) {
-        e = e || event
-        e.stopPropagation()
-        e.preventDefault()
-      })
+      // document.body.addEventListener('touchmove', function (e) {
+      //   e = e || event
+      //   e.stopPropagation()
+      //   e.preventDefault()
+      // })
     },
     removeStopScroll () {
-      document.body.removeEventListener('touchmove', function (e) {
-        e = e || event
-        e.stopPropagation()
-        e.preventDefault()
-      })
+      // document.body.removeEventListener('touchmove', function (e) {
+      //   e = e || event
+      //   e.stopPropagation()
+      //   e.preventDefault()
+      // })
     },
     reload () {
       let data = {

@@ -14,7 +14,7 @@
 
 <script>
 import BHeader from './components/b-header/b-header'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'App',
@@ -27,10 +27,17 @@ export default {
   },
   methods: {
     ...mapMutations(['setUserId', 'setMerId']),
+    ...mapGetters(['getUserId', 'getMerId']),
     getParams (data) {
       let userInfo = JSON.parse(data)
-      this.setUserId(userInfo.userId)
-      this.setMerId(userInfo.merId)
+      // this.$store.state.userId = userInfo.userId
+      // this.$store.state.merId = userInfo.merId
+      // this.setUserId(userInfo.userId)
+      // this.setMerId(userInfo.merId)
+      // setTimeout(() => {
+        // alert(this.getUserId())
+        // alert(this.getMerId())
+      // })
     }
   },
   mounted () {
@@ -39,8 +46,8 @@ export default {
       window.getParams = that.getParams
     }
     // setTimeout(() => {
-    //   this.setUserId(123)
-    //   this.setMerId(456)
+    //   this.$store.state.userId = 123
+    //   this.$store.state.merId = 23
     // })
   }
 }

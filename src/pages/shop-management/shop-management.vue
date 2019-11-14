@@ -30,7 +30,8 @@
               <div class="inventory">库存：{{item.number}}</div>
             </div>
           </div>
-          <div class="edit-btn" v-if="item.status==1">
+          <div class="edit-btn"
+               v-if="item.status==1">
             <div class="btn share"
                  @click="share(item.id)">
               <span>分享</span>
@@ -44,7 +45,8 @@
               <span>删除</span>
             </div>
           </div>
-          <div class="edit-btn" v-else>
+          <div class="edit-btn"
+               v-else>
             <div class="btn audit">
               <span>审核中</span>
             </div>
@@ -64,7 +66,8 @@
                              :info="scanCount"
                              v-else />
     </div>
-    <div class="l-footer" v-if="products.length != 0">
+    <div class="l-footer"
+         v-if="products.length != 0">
       <button class="btn-upload"
               @click="$router.push('/shop-upload')">继续上架</button>
     </div>
@@ -151,7 +154,7 @@ export default {
 
     },
     goDetail (item) {
-      if(item.status != 1) return
+      if (item.status != 1) return
       this.$router.push({
         name: 'detail',
         params: {
@@ -165,6 +168,9 @@ export default {
   },
   mounted () {
     this.setBackName(null)
+    // this.$nextTick(() => {
+    //   this.init()
+    // })
     let timer = null
     timer = setInterval(() => {
       if (this.getUserId() && this.getMerId()) {
@@ -172,7 +178,13 @@ export default {
         clearInterval(timer)
       }
     })
-  }
+  },
+  // watch: {
+  //   '$store.state.merId': function (val1, val2) {
+  //     console.log(233)
+  //     this.init()
+  //   }
+  // }
 }
 </script>
 
