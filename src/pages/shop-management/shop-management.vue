@@ -82,8 +82,6 @@ export default {
   name: "",
   data () {
     return {
-      userId: this.$store.state.userId,
-      merId: this.$store.state.merId,
       products: [],
       scanCount: 0,
       loading: false,
@@ -97,7 +95,7 @@ export default {
     ...mapMutations(['setBackName']),
     ...mapGetters(['getUserId', 'getMerId']),
     init () {
-      let data = { merId: this.merId }
+      let data = { merId: this.getMerId() }
       this.page = 1
       this.total = 10
       this.getProducts(data)
@@ -121,7 +119,7 @@ export default {
       this.page = this.page + 1
       this.total = this.total + 10
       let data = {
-        merId: this.merId,
+        merId: this.getMerId(),
         page: this.page
       }
       this.getProducts(data, this.page)
@@ -141,7 +139,7 @@ export default {
       }).then(() => {
         let data = {
           productId: id,
-          merId: this.merId
+          merId: this.getMerId()
         }
         this.$http.deleteShop(data).then(resp => {
           this.$toast.success('删除成功')
@@ -167,24 +165,21 @@ export default {
     }
   },
   mounted () {
+    this.$toast.loading({
+      message: '加载中...',
+      loadingType: 'spinner',
+      forbidClick: true,
+      duration: 0
+    })
     this.setBackName(null)
-    // this.$nextTick(() => {
-    //   this.init()
-    // })
     let timer = null
     timer = setInterval(() => {
       if (this.getUserId() && this.getMerId()) {
         this.init()
         clearInterval(timer)
       }
-    })
-  },
-  // watch: {
-  //   '$store.state.merId': function (val1, val2) {
-  //     console.log(233)
-  //     this.init()
-  //   }
-  // }
+    },200)
+  }
 }
 </script>
 

@@ -247,7 +247,14 @@ export default {
     },
     openMobilePhotoAlbum () { // 打开原生相册
       let count = this.imageUpload.length // 已经选择了几张图片
-      window.webkit.messageHandlers.opemAlbum.postMessage(count)
+      let u = navigator.userAgent, app = navigator.appVersion
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isAndroid) {
+        window.Android.opemAlbum(count)
+      } else if (isiOS) {
+        window.webkit.messageHandlers.opemAlbum.postMessage(count)
+      }
     },
     getPhotos (data) {
       console.log(this.imageUpload)
@@ -257,10 +264,10 @@ export default {
         item = `data:image/png;base64,${item}`
         return item
       })
-      imgArr.forEach(item => {
-        let base64 = item
-        this.dealImage(base64, 500, this.useImg)
-      })
+      // imgArr.forEach(item => {
+      //   let base64 = item
+      //   this.dealImage(base64, 500, this.useImg)
+      // })
       this.imageUpload = this.imageUpload.length ? [...this.imageUpload, ...imgArr] : [...imgArr]
     }
   },

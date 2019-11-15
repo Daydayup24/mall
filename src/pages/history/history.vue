@@ -51,7 +51,7 @@ export default {
   },
   components: {},
   methods: {
-    ...mapGetters(['getUserId']),
+    ...mapGetters(['getUserId', 'getMerId']),
     ...mapMutations(['setBackName']),
     goDetail (id) {
       this.$router.push({
@@ -89,7 +89,13 @@ export default {
   },
   mounted () {
     this.setBackName(null)
-    this.getHistoryList()
+    let timer = null
+    timer = setInterval(() => {
+      if (this.getUserId() && this.getMerId()) {
+        this.getHistoryList()
+        clearInterval(timer)
+      }
+    }, 200)
   }
 }
 </script>

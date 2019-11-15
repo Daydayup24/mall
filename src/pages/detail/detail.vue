@@ -125,7 +125,7 @@ export default {
       }
       this.$http.getShopDetail(data).then(resp => {
         let { data } = resp
-        if (data.merId === this.getMerId()) { //判断是否是该商品商户
+        if (data.merId == this.getMerId()) { //判断是否是该商品商户
           this.isMer = true
         }
         this.information = data

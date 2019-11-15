@@ -73,7 +73,7 @@ export default {
     orderList
   },
   methods: {
-    ...mapGetters(['getUserId']),
+    ...mapGetters(['getUserId', 'getMerId']),
     ...mapMutations(['setBackName']),
     stopScroll () {
       // document.body.addEventListener('touchmove', function (e) {
@@ -244,10 +244,16 @@ export default {
   },
   mounted () {
     this.setBackName(null)
-    let data = {
-      userId: this.getUserId()
-    }
-    this.getOrderList(data)
+    let timer = null
+    timer = setInterval(() => {
+      if (this.getUserId() && this.getMerId()) {
+        let data = {
+          userId: this.getUserId()
+        }
+        this.getOrderList(data)
+        clearInterval(timer)
+      }
+    }, 200)
   }
 }
 </script>

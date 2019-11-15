@@ -44,6 +44,8 @@ ajax.interceptors.response.use(
     toast1.clear() // 相应成功关闭toast
     if (data.data.code === 1) {
       return data.data
+    } else {
+      alert(data.data.code)
     }
     Toast.fail({
       message: '服务器异常\n请稍后再试',
