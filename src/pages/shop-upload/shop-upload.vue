@@ -257,7 +257,10 @@ export default {
       }
     },
     getPhotos (data) {
-      console.log(this.imageUpload)
+      if (!data) {
+        this.$toast('图片加载失败，请重试')
+        return
+      }
       data = `${data}`
       let imgArr = data.split('|')
       imgArr = imgArr.map(item => {
