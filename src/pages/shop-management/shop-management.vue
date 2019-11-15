@@ -1,5 +1,5 @@
 <template>
-  <div class="shopList">
+  <div class="shopList" v-if="isDataBack">
     <div class="none"
          v-if="products.length == 0">
       <div class="img">
@@ -87,7 +87,8 @@ export default {
       loading: false,
       finished: false,
       page: 1,
-      total: 10
+      total: 10,
+      isDataBack: false
     }
   },
   components: {},
@@ -113,6 +114,7 @@ export default {
           this.finished = true
         }
         this.loading = false
+        this.isDataBack = true
       })
     },
     onLoading () {
