@@ -257,6 +257,7 @@ export default {
       }
     },
     getPhotos (data) {
+      alert(12312)
       if (!data) {
         this.$toast('图片加载失败，请重试')
         return

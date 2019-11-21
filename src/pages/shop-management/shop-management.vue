@@ -1,5 +1,6 @@
 <template>
-  <div class="shopList" v-if="isDataBack">
+  <div class="shopList"
+       v-if="isDataBack">
     <div class="none"
          v-if="products.length == 0">
       <div class="img">
@@ -180,7 +181,7 @@ export default {
         this.init()
         clearInterval(timer)
       }
-    },200)
+    }, 500)
   }
 }
 </script>

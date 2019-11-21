@@ -28,6 +28,10 @@ export default {
   methods: {
     ...mapMutations(['setUserId', 'setMerId']),
     getParams (data) {
+      // if (!data) {
+      //   this.toast('用户信息获取失败，请稍后再试')
+      //   return
+      // }
       // this.setUserId(JSON.parse(data).userId)
       // this.setMerId(JSON.parse(data).merId)
     }
@@ -36,14 +40,11 @@ export default {
     let that = this
     window.onload = function () {
       window.getParams = that.getParams
+      setTimeout(() => {
+        that.setUserId('ADAVAVCC')
+        that.setMerId('1')
+      }, 500)
     }
-    // setTimeout(() => {
-    //   this.setUserId('qqqqq')
-    //   this.setMerId('213123')
-    // })
-    // setTimeout(() => {
-    //   alert(this.getUserId())
-    // },1000)
   }
 }
 </script>

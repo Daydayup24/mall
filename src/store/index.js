@@ -8,6 +8,8 @@ const state = {
   productId: '',
   userId: 'ADAVAVCC',
   merId: '1'
+  // userId: '',
+  // merId: ''
 }
 
 const mutations = {

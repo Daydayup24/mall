@@ -136,7 +136,13 @@ export default {
   },
   mounted () {
     this.id = this.$route.params.id
-    this.getDetail()
+    let timer = null
+    timer = setInterval(() => {
+      if (this.getUserId() && this.getMerId()) {
+        this.getDetail()
+        clearInterval(timer)
+      }
+    }, 200)
     this.setProductId(this.id)
     this.$nextTick(() => {
       if (this.backName == 'shop-management' || this.backName == 'history') {
@@ -149,11 +155,6 @@ export default {
   watch: {
     $route: "init"
   },
-  // beforeRouteUpdate(to, from, next) {
-  //   this.setProductId(to.params.id)
-  //   console.log(to.params.id)
-  //   next()
-  // },
   beforeRouteLeave (to, from, next) {
     if (to.name !== 'confirm-order') {
       this.setProductId('')
