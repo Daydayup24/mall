@@ -13,7 +13,13 @@
       </van-search>
     </div>
     <van-pull-refresh v-model="isLoading" @refresh="onRefresh" class="list-warp">
-      <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoading">
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoading"
+        class="van-clearfix"
+      >
         <div v-for="item in shopList" :key="item.id" @click="goDetail(item.id)" class="list-item">
           <div class="img">
             <img :src="item.headImage" />
@@ -26,6 +32,7 @@
             <span class="inventory">库存：{{item.numberType == 1 ? '不限量' : item.number}}</span>
           </p>
         </div>
+        <div class="clear"></div>
       </van-list>
       <div class="autoFlex"></div>
     </van-pull-refresh>
@@ -141,7 +148,6 @@ export default {
       padding: 0 0.11rem;
       background: #f7f8fb;
       .list-item {
-        display: inline-block;
         width: 1.72rem;
         height: 2.5rem;
         margin-top: 0.11rem;
@@ -160,6 +166,7 @@ export default {
         .title {
           margin-top: 7px;
           height: 0.36rem;
+          line-height: 0.18rem;
           padding: 0 6px;
           font-family: PingFangSC-Regular;
           font-size: 0.13rem;
@@ -199,7 +206,15 @@ export default {
         }
       }
       .list-item:nth-child(odd) {
-        margin-right: 5px;
+        // margin-right: 5px;
+        float: left;
+      }
+      .list-item:nth-child(even) {
+        // margin-right: 5px;
+        float: right;
+      }
+      .clear {
+        clear: both;
       }
     }
     .autoFlex {
