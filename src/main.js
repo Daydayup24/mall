@@ -22,7 +22,8 @@ import {
   SwipeItem,
   ImagePreview,
   List,
-  Image
+  Image,
+  PullRefresh 
 } from 'vant'
 
 Vue.use(Toast)
@@ -39,6 +40,7 @@ Vue.use(List)
 Vue.use(Image)
 Vue.use(Tab).use(Tabs)
 Vue.use(Swipe).use(SwipeItem)
+Vue.use(PullRefresh)
 
 Vue.use(VueClipboard)
 

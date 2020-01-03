@@ -28,7 +28,10 @@
             <div class="desc-info">
               <div class="text">{{item.title}}</div>
               <div class="price"><span>￥</span>{{item.price.split('.')[0]}}<span>.{{item.price.split('.')[1]}}</span></div>
-              <div class="inventory">库存：{{item.number}}</div>
+              <div class="inventory">
+                <span>库存：{{item.number}}</span>
+                <em>已售：{{item.sellOut}}</em>
+              </div>
             </div>
           </div>
           <div class="edit-btn"
@@ -289,6 +292,8 @@ export default {
             }
           }
           .inventory {
+            display: flex;
+            justify-content: space-between;
             margin-top: 0.02rem;
             font-size: 0.12rem;
             font-family: PingFangSC-Regular, PingFang SC;

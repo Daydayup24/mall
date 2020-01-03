@@ -34,7 +34,7 @@
         </div>
       </div>
     </div>
-    <div class="d-footer">
+    <div class="d-footer" v-if="ready">
 
       <!-- <div class="btn-mer"
            v-if="$store.state.user.merId"> -->
@@ -70,7 +70,8 @@ export default {
       id: '',
       backName: '',
       isMer: false,
-      status: 0
+      status: 0,
+      ready: false
     }
   },
   components: {},
@@ -131,6 +132,7 @@ export default {
         this.information = data
         this.swiperList = data.image
         this.status = data.status
+        this.ready = true
       })
     }
   },

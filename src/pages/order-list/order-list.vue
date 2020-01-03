@@ -65,8 +65,7 @@ export default {
       type: 99, // 99完成  1待发货  2待收货  3已完成  -99退款订单
       total: 10,
       loading: false,
-      finished: false,
-      isEnd: false
+      finished: false
     }
   },
   components: {

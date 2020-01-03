@@ -156,3 +156,8 @@ export const ensureOrderSend = params => {
 export const clearHistory = params => {
   return ajax.post('/content/api/user-scan-delete', params)
 }
+
+// 获取商品列表
+export const getShopList = params => {
+  return ajax.post('/content/api/product-list', params)
+}

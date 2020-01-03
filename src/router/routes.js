@@ -10,6 +10,7 @@ const ModifyAddress = () => import('@/pages/modify-address/modify-address')
 const ConfirmOrder = () => import('@/pages/confirm-order/confirm-order')
 const Success = () => import('@/pages/success/success')
 const Message = () => import('@/pages/message/message')
+const List = () => import('@/pages/list/list')
 
 const routes = [
   {
@@ -64,6 +65,16 @@ const routes = [
     },
     meta: {
       title: '我的订单'
+    }
+  },
+  {
+    path: '/list',
+    name: 'list',
+    components: {
+      default: List
+    },
+    meta: {
+      title: '逛一逛'
     }
   },
   {
