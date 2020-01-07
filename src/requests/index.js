@@ -63,6 +63,11 @@ ajax.interceptors.response.use(
   }
 )
 
+// 商户身份查询
+export const checkMer = params => {
+  return ajax.post('content/api/merchant-check', params)
+}
+
 // 获取商家商品列表
 export const getMerchantsShopList = params => {
   return ajax.post('content/api/merchant-product', params)

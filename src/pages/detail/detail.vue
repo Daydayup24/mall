@@ -76,7 +76,7 @@ export default {
   },
   components: {},
   methods: {
-    ...mapMutations(['setProductId', 'setBackName']),
+    ...mapMutations(['setProductId', 'setBackName', 'setMerId']),
     ...mapGetters(['getProductId', 'getMerId', 'getUserId']),
     share () {
       let u = navigator.userAgent, app = navigator.appVersion
@@ -143,7 +143,15 @@ export default {
     let timer = null
     timer = setInterval(() => {
       if (this.getUserId()) {
-        this.getDetail()
+        let data = {
+          userId: this.getUserId(),
+        };
+        this.$http.checkMer(data).then(resp => {
+          if(resp && resp.code == 1) {
+            this.setMerId(resp.data.merId)
+          }
+          this.getDetail();
+        })
         clearInterval(timer)
       }
     }, 200)

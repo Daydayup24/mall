@@ -190,7 +190,6 @@ export default {
       let { data } = resp;
       this.infor = data;
       this.totalPrice = this.infor.price;
-      this.shop_merId = data.merId
     });
     //监听事件
     window.onresize = () => {

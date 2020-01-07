@@ -1,90 +1,80 @@
 <template>
-  <div class="shopList"
-       v-if="isDataBack">
-    <div class="none"
-         v-if="products.length == 0">
+  <div class="shopList" v-if="isDataBack">
+    <div class="none" v-if="products.length == 0">
       <div class="img">
         <div class="logo"></div>
         <p>你还没有上架任何商品！</p>
       </div>
-      <button class="upLoad"
-              @click="$router.push('/shop-upload')">立即上架</button>
+      <button class="upLoad" @click="$router.push('/shop-upload')">立即上架</button>
     </div>
-    <div class="list"
-         v-else>
-      <van-list v-model="loading"
-                :finished="finished"
-                finished-text="没有更多了"
-                @load="onLoading"
-                :immediate-check="false">
-        <div :class="i==products.length-1 ? 'list-item list-item-finished' : 'list-item'"
-             v-for="(item, i) in products"
-             :key="item.id">
-          <div class="desc"
-               @click="goDetail(item)">
+    <div class="list" v-else>
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoading"
+        :immediate-check="false"
+      >
+        <div
+          :class="i==products.length-1 ? 'list-item list-item-finished' : 'list-item'"
+          v-for="(item, i) in products"
+          :key="item.id"
+        >
+          <div class="desc" @click="goDetail(item)">
             <div class="desc-img">
               <img :src="item.headImage" />
             </div>
             <div class="desc-info">
               <div class="text">{{item.title}}</div>
-              <div class="price"><span>￥</span>{{item.price.split('.')[0]}}<span>.{{item.price.split('.')[1]}}</span></div>
+              <div class="price">
+                <span>￥</span>
+                {{item.price.split('.')[0]}}
+                <span>.{{item.price.split('.')[1]}}</span>
+              </div>
               <div class="inventory">
                 <span>库存：{{item.number}}</span>
                 <em>已售：{{item.sellOut}}</em>
               </div>
             </div>
           </div>
-          <div class="edit-btn"
-               v-if="item.status==1">
-            <div class="btn share"
-                 @click="share(item)">
+          <div class="edit-btn" v-if="item.status==1">
+            <div class="btn share" @click="share(item)">
               <span>分享</span>
             </div>
-            <div class="btn edit"
-                 @click="shopEdit(item.id)">
+            <div class="btn edit" @click="shopEdit(item.id)">
               <span>编辑</span>
             </div>
-            <div class="btn del"
-                 @click="del(item.id)">
+            <div class="btn del" @click="del(item.id)">
               <span>删除</span>
             </div>
           </div>
-          <div class="edit-btn"
-               v-else>
+          <div class="edit-btn" v-else>
             <div class="btn audit">
               <span>审核中</span>
             </div>
-            <div class="btn del"
-                 @click="del(item.id)">
+            <div class="btn del" @click="del(item.id)">
               <span>删除</span>
             </div>
           </div>
         </div>
       </van-list>
     </div>
-    <div class="btn-msg"
-         @click="goMessage">
-      <div class="msg"
-           v-if="scanCount==0"></div>
-      <van-goods-action-icon class="msg"
-                             :info="scanCount"
-                             v-else />
+    <div class="btn-msg" @click="goMessage">
+      <div class="msg" v-if="scanCount==0"></div>
+      <van-goods-action-icon class="msg" :info="scanCount" v-else />
     </div>
-    <div class="l-footer"
-         v-if="products.length != 0">
-      <button class="btn-upload"
-              @click="$router.push('/shop-upload')">继续上架</button>
+    <div class="l-footer" v-if="products.length != 0">
+      <button class="btn-upload" @click="$router.push('/shop-upload')">继续上架</button>
     </div>
-
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { mapMutations, mapGetters } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex';
 
 export default {
-  name: "",
-  data () {
+  name: '',
+  data() {
     return {
       products: [],
       scanCount: 0,
@@ -92,108 +82,120 @@ export default {
       finished: false,
       page: 1,
       total: 10,
-      isDataBack: false
-    }
+      isDataBack: false,
+    };
   },
   components: {},
   methods: {
-    ...mapMutations(['setBackName']),
+    ...mapMutations(['setBackName', 'setMerId']),
     ...mapGetters(['getUserId', 'getMerId']),
-    init () {
-      let data = { merId: this.getMerId() }
-      this.page = 1
-      this.total = 10
-      this.getProducts(data)
+    init() {
+      let data = { merId: this.getMerId() };
+      this.page = 1;
+      this.total = 10;
+      this.getProducts(data);
     },
-    getProducts (params, page = 1) {
+    getProducts(params, page = 1) {
       this.$http.getMerchantsShopList(params).then(resp => {
-        this.loading = true
+        this.loading = true;
         if (resp && resp.code === 1) {
-          let list = resp.data.products
-          this.products = page == 1 ? list : this.products.concat(list)
+          let list = resp.data.products;
+          this.products = page == 1 ? list : this.products.concat(list);
         }
-        this.scanCount = resp.data.scanCount > 99 ? '99+' : resp.data.scanCount
-        let { total } = resp.data
+        this.scanCount = resp.data.scanCount > 99 ? '99+' : resp.data.scanCount;
+        let { total } = resp.data;
         if (this.total >= total) {
-          this.finished = true
+          this.finished = true;
         }
-        this.loading = false
-        this.isDataBack = true
-      })
+        this.loading = false;
+        this.isDataBack = true;
+      });
     },
-    onLoading () {
-      this.page = this.page + 1
-      this.total = this.total + 10
+    onLoading() {
+      this.page = this.page + 1;
+      this.total = this.total + 10;
       let data = {
         merId: this.getMerId(),
-        page: this.page
-      }
-      this.getProducts(data, this.page)
+        page: this.page,
+      };
+      this.getProducts(data, this.page);
     },
-    shopEdit (id) {
+    shopEdit(id) {
       this.$router.push({
         name: 'shop-upload',
         params: {
-          id
-        }
-      })
+          id,
+        },
+      });
     },
-    del (id) {
-      this.$dialog.confirm({
-        message: '确定删除吗？',
-        confirmButtonColor: '#FFD200'
-      }).then(() => {
-        let data = {
-          productId: id,
-          merId: this.getMerId()
-        }
-        this.$http.deleteShop(data).then(resp => {
-          this.$toast.success('删除成功')
-          this.init()
+    del(id) {
+      this.$dialog
+        .confirm({
+          message: '确定删除吗？',
+          confirmButtonColor: '#FFD200',
         })
-      }).catch(() => { })
+        .then(() => {
+          let data = {
+            productId: id,
+            merId: this.getMerId(),
+          };
+          this.$http.deleteShop(data).then(resp => {
+            this.$toast.success('删除成功');
+            this.init();
+          });
+        })
+        .catch(() => {});
     },
-    share (item) {
-      item.shareUrl = `${location.origin}/mall/detail/${item.id}`
-      let u = navigator.userAgent, app = navigator.appVersion
-      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
-      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+    share(item) {
+      item.shareUrl = `${location.origin}/mall/detail/${item.id}`;
+      let u = navigator.userAgent,
+        app = navigator.appVersion;
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1;
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
       if (isAndroid) {
-        window.Android.share(JSON.stringify(item))
+        window.Android.share(JSON.stringify(item));
       } else if (isiOS) {
-        window.webkit.messageHandlers.share.postMessage(JSON.stringify(item))
+        window.webkit.messageHandlers.share.postMessage(JSON.stringify(item));
       }
     },
-    goDetail (item) {
-      if (item.status != 1) return
+    goDetail(item) {
+      if (item.status != 1) return;
       this.$router.push({
         name: 'detail',
         params: {
-          id: item.id
-        }
-      })
+          id: item.id,
+        },
+      });
     },
-    goMessage () {
-      this.$router.push('/message')
-    }
+    goMessage() {
+      this.$router.push('/message');
+    },
   },
-  mounted () {
+  mounted() {
     this.$toast.loading({
       message: '加载中...',
       loadingType: 'spinner',
       forbidClick: true,
-      duration: 0
-    })
-    this.setBackName(null)
-    let timer = null
+      duration: 0,
+    });
+    this.setBackName(null);
+    let timer = null;
     timer = setInterval(() => {
       if (this.getUserId()) {
-        this.init()
-        clearInterval(timer)
+        let data = {
+          userId: this.getUserId(),
+        };
+        this.$http.checkMer(data).then(resp => {
+          if(resp && resp.code == 1) {
+            this.setMerId(resp.data.merId)
+          }
+          this.init();
+        })
+        clearInterval(timer);
       }
-    }, 500)
-  }
-}
+    }, 500);
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -327,7 +329,7 @@ export default {
             color: rgba(144, 144, 144, 1);
           }
           span::before {
-            content: "";
+            content: '';
             display: inline-block;
             vertical-align: middle;
             width: 0.12rem;
