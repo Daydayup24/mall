@@ -37,7 +37,7 @@
           <div class="edit-btn"
                v-if="item.status==1">
             <div class="btn share"
-                 @click="share(item.id)">
+                 @click="share(item)">
               <span>分享</span>
             </div>
             <div class="btn edit"
@@ -150,12 +150,19 @@ export default {
         this.$http.deleteShop(data).then(resp => {
           this.$toast.success('删除成功')
           this.init()
-          // console.log(resp)
         })
       }).catch(() => { })
     },
-    share (id) {
-
+    share (item) {
+      item.shareUrl = `${location.origin}/mall/detail/${item.id}`
+      let u = navigator.userAgent, app = navigator.appVersion
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isAndroid) {
+        window.Android.share(JSON.stringify(item))
+      } else if (isiOS) {
+        window.webkit.messageHandlers.share.postMessage(JSON.stringify(item))
+      }
     },
     goDetail (item) {
       if (item.status != 1) return
@@ -180,7 +187,7 @@ export default {
     this.setBackName(null)
     let timer = null
     timer = setInterval(() => {
-      if (this.getUserId() && this.getMerId()) {
+      if (this.getUserId()) {
         this.init()
         clearInterval(timer)
       }

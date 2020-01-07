@@ -28,22 +28,26 @@ export default {
   methods: {
     ...mapMutations(['setUserId', 'setMerId']),
     getParams (data) {
-      // if (!data) {
-      //   this.toast('用户信息获取失败，请稍后再试')
-      //   return
-      // }
-      // this.setUserId(JSON.parse(data).userId)
-      // this.setMerId(JSON.parse(data).merId)
+      try {
+        this.setUserId(JSON.parse(data).userId)
+        this.setMerId(JSON.parse(data).merId)
+      } catch (err) {
+        this.$toast.fail('获取用户信息失败，请稍后重试')
+      }
     }
   },
   mounted () {
     let that = this
     window.onload = function () {
       window.getParams = that.getParams
-      setTimeout(() => {
-        that.setUserId('ADAVAVCC')
-        that.setMerId('1')
-      }, 500)
+      let u = navigator.userAgent, app = navigator.appVersion
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isAndroid) {
+        window.Android.getUserInfo()
+      } else if (isiOS) {
+        window.webkit.messageHandlers.getUserInfo.postMessage('')
+      }
     }
   }
 }

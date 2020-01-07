@@ -41,6 +41,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations } from 'vuex'
 export default {
   name: '',
   data() {
@@ -56,6 +57,7 @@ export default {
   },
   components: {},
   methods: {
+    ...mapMutations(['setBackName']),
     onSearch() {
       if (this.searchValue.trim() == '') {
         this.searchValue = '';
@@ -107,6 +109,9 @@ export default {
       });
     },
   },
+  mounted() {
+    this.setBackName(null)
+  }
 };
 </script>
 

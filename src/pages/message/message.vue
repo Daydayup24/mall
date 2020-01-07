@@ -1,39 +1,40 @@
 <template>
   <div class="message">
     <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
-    <van-list v-model="loading"
-              :finished="finished"
-              finished-text="没有更多了"
-              @load="onLoading"
-              :immediate-check="false">
-      <div :class="i==msgList.length-1 ? 'msg-item msg-item-nomargin' : 'msg-item'"
-           v-for="(item, i) in msgList"
-           :key="item.id">
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="没有更多了"
+      @load="onLoading"
+      :immediate-check="false"
+    >
+      <div
+        :class="i==msgList.length-1 ? 'msg-item msg-item-nomargin' : 'msg-item'"
+        v-for="(item, i) in msgList"
+        :key="item.id"
+      >
         <div class="item-header">
-          <p class="fahuo"
-             v-if="item.status==1">
+          <p class="fahuo" v-if="item.status==1">
             <span>你有订单需发货</span>
           </p>
-          <p class="tuihuo"
-             v-else-if="item.status==-1">
+          <p class="tuihuo" v-else-if="item.status==-1">
             <span>有买家找你退货</span>
           </p>
-          <p class="normal"
-             v-else>
+          <p class="normal" v-else>
             <span>订单</span>
           </p>
-          <div class="status"
-               v-if="item.status==1 || item.status==-1">
+          <div class="status" v-if="item.agree==2">已拒绝</div>
+          <div class="status" v-else-if="item.status==1 || item.status==-1">
             <span>待处理</span>
           </div>
-          <div class="status"
-               v-else-if="item.status==2"><i>配送中</i></div>
-          <div class="status"
-               v-else-if="item.status==-2"><i>退货中</i></div>
-          <div class="status"
-               v-else-if="item.status==3">交易成功</div>
-          <div class="status"
-               v-else-if="item.status==-3">退货完成</div>
+          <div class="status" v-else-if="item.status==2">
+            <i>配送中</i>
+          </div>
+          <div class="status" v-else-if="item.status==-2">
+            <i>退货中</i>
+          </div>
+          <div class="status" v-else-if="item.status==3">交易成功</div>
+          <div class="status" v-else-if="item.status==-3">退货完成</div>
         </div>
         <div class="desc">
           <div class="desc-img">
@@ -50,95 +51,99 @@
                 <span>{{item.name}}</span>
                 <i>{{item.phone}}</i>
               </div>
-              <div class="addressDesc">{{item.province}} {{item.city}} {{item.area}} {{item.address}}</div>
+              <div
+                class="addressDesc"
+              >{{item.province}} {{item.city}} {{item.area}} {{item.address}}</div>
             </div>
           </div>
         </div>
-        <div class="edit-btn"
-             @click="editOrderId=item.id">
-          <div class="refund"
-               v-if="item.status==1"
-               @click="show2=true">确认发货</div>
-          <div class="refund"
-               v-else-if="item.status==-1"
-               @click="show=true">确认退货</div>
-          <div class="refund"
-               v-else-if="item.status==-2"
-               @click="show1=true">完成退货</div>
-          <div class="refund"
-               v-else-if="item.status==-3 || item.status==3"
-               @click="delOrder(item.id)">删除订单</div>
+        <div class="edit-btn" @click="getEditInfo(item)">
+          <div class="refund" v-if="item.agree==2"></div>
+          <div class="refund" v-else-if="item.status==1" @click="show2=true">确认发货</div>
+          <div class="refund" v-else-if="item.status==-1">
+            <div>
+              <span @click="show=true">同意退货</span>
+              <i>|</i>
+              <span @click="disagreeShow=true">拒绝退货</span>
+            </div>
+          </div>
+          <div class="refund" v-else-if="item.status==-2" @click="show1=true">完成退货</div>
+          <div
+            class="refund"
+            v-else-if="item.status==-3 || item.status==3"
+            @click="delOrder(item.id)"
+          >删除订单</div>
         </div>
       </div>
     </van-list>
-    <!-- 退货确认弹框 -->
-    <div class="dialog-confirm"
-         v-show="show">
+    <!-- 同意退货弹框 -->
+    <div class="dialog-confirm" v-show="show">
       <div class="t-title">
-        <button class="close"
-                @click="show = false">
-          <van-icon name="cross"
-                    size=".14rem" />
+        <button class="close" @click="show = false">
+          <van-icon name="cross" size=".14rem" />
         </button>
         <span>确认退货</span>
       </div>
       <div class="content">
         <p>同意会员退货申请？</p>
       </div>
-      <div class="ok-btn"
-           @click="MerAgreeRefund">确 认</div>
+      <div class="ok-btn" @click="MerAgreeRefund">确 认</div>
     </div>
-    <van-overlay :show="show"
-                 :z-index="10" />
-    <!-- 完成退货弹框 -->
-    <div class="dialog-confirm"
-         v-show="show1">
+    <van-overlay :show="show" :z-index="10" />
+    <!-- 拒绝退货弹框 -->
+    <div class="dialog-confirm" v-show="disagreeShow">
       <div class="t-title">
-        <button class="close"
-                @click="show1 = false">
-          <van-icon name="cross"
-                    size=".14rem" />
+        <button class="close" @click="disagreeShow = false">
+          <van-icon name="cross" size=".14rem" />
+        </button>
+        <span>确认拒绝</span>
+      </div>
+      <div class="content">
+        <p>拒绝会员退货申请？</p>
+      </div>
+      <div class="ok-btn" @click="disagreeRefund">确 认</div>
+    </div>
+    <van-overlay :show="disagreeShow" :z-index="10" />
+    <!-- 完成退货弹框 -->
+    <div class="dialog-confirm" v-show="show1">
+      <div class="t-title">
+        <button class="close" @click="show1 = false">
+          <van-icon name="cross" size=".14rem" />
         </button>
         <span>完成退货</span>
       </div>
       <div class="content">
         <p>确认完成退款交易？</p>
       </div>
-      <div class="ok-btn"
-           @click="ensureRefundCompleted">确 认</div>
+      <div class="ok-btn" @click="ensureRefundCompleted">确 认</div>
     </div>
-    <van-overlay :show="show1"
-                 :z-index="10" />
+    <van-overlay :show="show1" :z-index="10" />
     <!-- 确认弹框 -->
-    <div class="dialog-confirm"
-         v-show="show2">
+    <div class="dialog-confirm" v-show="show2">
       <div class="t-title">
-        <button class="close"
-                @click="show2 = false">
-          <van-icon name="cross"
-                    size=".14rem" />
+        <button class="close" @click="show2 = false">
+          <van-icon name="cross" size=".14rem" />
         </button>
         <span>确认发货</span>
       </div>
       <div class="content">
         <p>确认已发货？</p>
       </div>
-      <div class="ok-btn"
-           @click="ensureOrderSend">确 认</div>
+      <div class="ok-btn" @click="ensureOrderSend">确 认</div>
     </div>
-    <van-overlay :show="show2"
-                 :z-index="10" />
+    <van-overlay :show="show2" :z-index="10" />
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex';
 
 export default {
-  name: "",
-  data () {
+  name: '',
+  data() {
     return {
       show: false,
+      disagreeShow: false,
       show1: false,
       show2: false,
       msgList: [],
@@ -146,119 +151,173 @@ export default {
       total: 10,
       loading: false,
       finished: false,
-      editOrderId: ''
-    }
+      editOrderId: '',
+      editUserId: '',
+      editPayNumber: '',
+    };
   },
   components: {},
   methods: {
     ...mapGetters(['getMerId', 'getUserId']),
     ...mapMutations(['setBackName']),
-    init () {
-      let data = { merId: this.getMerId() }
-      this.page = 0
-      this.total = 10
-      this.getMsgList(data)
+    init() {
+      let data = { merId: this.getMerId() };
+      this.page = 0;
+      this.total = 10;
+      this.getMsgList(data);
     },
-    getMsgList (params, page = 1) {
+    // 获取正在操作的那条消息的数据
+    getEditInfo(item) {
+      this.editOrderId = item.id;
+      this.editUserId = item.userId;
+      this.editPayNumber = item.orderNumber;
+    },
+    getMsgList(params, page = 1) {
       this.$http.getMerMessage(params).then(resp => {
-        this.loading = true
+        this.loading = true;
         if (resp && resp.code === 1) {
-          let list = resp.data.order
-          this.msgList = page == 1 ? list : this.msgList.concat(list)
-          this.msgList = this.msgList.filter(item => item.status != 0 || new Date().valueOf() - item.createTime * 1000 < 10 * 60 * 1000)
-          console.log(this.msgList)
+          let list = resp.data.order;
+          this.msgList = page == 1 ? list : this.msgList.concat(list);
+          this.msgList = this.msgList.filter(
+            item =>
+              item.status != 0 ||
+              new Date().valueOf() - item.createTime * 1000 < 10 * 60 * 1000
+          );
+          console.log(this.msgList);
         }
-        let { total } = resp.data
+        let { total } = resp.data;
         if (this.total >= total) {
-          this.finished = true
+          this.finished = true;
         }
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
-    onLoading () {
-      this.page = this.page + 1
-      this.total = this.total + 10
+    onLoading() {
+      this.page = this.page + 1;
+      this.total = this.total + 10;
       let data = {
         merId: this.getMerId(),
-        page: this.page
-      }
-      this.getMsgList(data, this.page)
+        page: this.page,
+      };
+      this.getMsgList(data, this.page);
     },
     // 商户确认退款
-    MerAgreeRefund () {
+    MerAgreeRefund() {
       let data = {
         promoter: 2,
         orderId: this.editOrderId,
-        userId: this.getUserId()
-      }
+        userId: this.getUserId(),
+      };
       this.$http.MerAgreeRefund(data).then(resp => {
-        this.$toast.success('已确认退货申请')
-        this.show = false
-        let timer = null
+        let params = {
+          userId: this.editUserId,
+          payNumber: this.editPayNumber,
+        };
+        let u = navigator.userAgent,
+          app = navigator.appVersion;
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1;
+        let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+        if (isAndroid) {
+          window.Android.refund(JSON.stringify(params));
+        } else if (isiOS) {
+          window.webkit.messageHandlers.refund.postMessage(
+            JSON.stringify(params)
+          );
+        }
+      });
+    },
+    // 拒绝退款
+    disagreeRefund() {
+      let data = {
+        merId: this.getMerId(),
+        orderId: this.editOrderId,
+      };
+      this.$http.disagreeRefund(data).then(resp => {
+        this.$toast.success('已拒绝退货申请');
+        this.disagreeShow = false;
+        let timer = null;
         timer = setTimeout(() => {
-          this.init()
-          clearTimeout(timer)
-        }, 1000)
-      })
+          this.init();
+          clearTimeout(timer);
+        }, 200);
+      });
+    },
+    // 退款回调
+    refundCallBack(code) {
+      alert(code);
+      if (code === '1') {
+        this.$toast.success('同意退货成功');
+        let timer = null;
+        timer = setTimeout(() => {
+          this.init();
+          clearTimeout(timer);
+        }, 200);
+      } else {
+        this.$toast.fail('同意退货失败，请稍后重试');
+      }
+      this.show = false;
     },
     // 确认完成退货
-    ensureRefundCompleted () {
+    ensureRefundCompleted() {
       let data = {
         promoter: 2,
         userId: this.getUserId(),
-        orderId: this.editOrderId
-      }
+        orderId: this.editOrderId,
+      };
       this.$http.userEnsureRefund(data).then(resp => {
-        this.$toast.success('已确认退货完成')
-        this.show1 = false
-        let timer = null
+        this.$toast.success('已确认退货完成');
+        this.show1 = false;
+        let timer = null;
         timer = setTimeout(() => {
-          this.init()
-          clearTimeout(timer)
-        }, 1000)
-      })
+          this.init();
+          clearTimeout(timer);
+        }, 200);
+      });
     },
     // 确认发货
-    ensureOrderSend () {
+    ensureOrderSend() {
       let data = {
         merId: this.getMerId(),
-        orderId: this.editOrderId
-      }
+        orderId: this.editOrderId,
+      };
       this.$http.ensureOrderSend(data).then(resp => {
-        this.$toast.success('已确定发货')
-        this.show2 = false
-        let timer = null
+        this.$toast.success('已确定发货');
+        this.show2 = false;
+        let timer = null;
         timer = setTimeout(() => {
-          this.init()
-          clearTimeout(timer)
-        }, 1000)
-      })
+          this.init();
+          clearTimeout(timer);
+        }, 200);
+      });
     },
-    delOrder (id) {
-      this.$dialog.confirm({
-        message: '确定删除吗？',
-        confirmButtonColor: '#FFD200'
-      }).then(() => {
-        let data = {
-          orderId: id,
-          merId: this.getMerId()
-        }
-        this.$http.MerDelOrder(data).then(resp => {
-          this.$toast.success('删除成功')
-          let timer = null
-          timer = setTimeout(() => {
-            this.init()
-            clearTimeout(timer)
-          }, 1000)
+    delOrder(id) {
+      this.$dialog
+        .confirm({
+          message: '确定删除吗？',
+          confirmButtonColor: '#FFD200',
         })
-      })
-    }
+        .then(() => {
+          let data = {
+            orderId: id,
+            merId: this.getMerId(),
+          };
+          this.$http.MerDelOrder(data).then(resp => {
+            this.$toast.success('删除成功');
+            let timer = null;
+            timer = setTimeout(() => {
+              this.init();
+              clearTimeout(timer);
+            }, 200);
+          });
+        });
+    },
   },
-  mounted () {
-    this.setBackName('shop-management')
-    this.init()
+  mounted() {
+    window.refundCallBack = this.refundCallBack;
+    this.setBackName('shop-management');
+    this.init();
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -291,7 +350,7 @@ export default {
       }
       .fahuo {
         span::before {
-          content: "";
+          content: '';
           display: inline-block;
           width: 0.12rem;
           height: 0.12rem;
@@ -302,7 +361,7 @@ export default {
       }
       .tuihuo {
         span::before {
-          content: "";
+          content: '';
           display: inline-block;
           width: 0.12rem;
           height: 0.12rem;
@@ -413,11 +472,15 @@ export default {
         line-height: 0.4rem;
         font-weight: 600;
         color: rgba(0, 0, 0, 1);
-        button {
-          width: 47%;
-          line-height: 0.4rem;
-          text-align: center;
-          font-weight: 600;
+        div {
+          display: flex;
+          justify-content: space-around;
+          i {
+            padding: 0 6px;
+          }
+          span {
+            padding: 0 12px;
+          }
         }
       }
     }

@@ -91,7 +91,7 @@ export default {
     this.setBackName(null)
     let timer = null
     timer = setInterval(() => {
-      if (this.getUserId() && this.getMerId()) {
+      if (this.getUserId()) {
         this.getHistoryList()
         clearInterval(timer)
       }

@@ -7,14 +7,14 @@
     <div class="info-img img-success"
          v-else></div>
     <div class="user-info">
-      <p class="user">收货人：{{detailData.name}}</p>
-      <p class="tel">{{detailData.phone}}</p>
-      <p class="address">地址：{{detailData.province}} {{detailData.city}} {{detailData.area}} {{detailData.address}}</p>
+      <p class="user">收货人：{{address.name}}</p>
+      <p class="tel">{{address.phone}}</p>
+      <p class="address">地址：{{address.province}} {{address.city}} {{address.area}} {{address.address}}</p>
     </div>
     <div class="margin"></div>
     <div class="shop-info">
       <div class="item-header">
-        <div class="shop-avatar"></div>
+        <!-- <div class="shop-avatar"></div> -->
         <div class="shop-name">奔跑的蜗牛</div>
         <div class="right">
           <van-icon name="arrow"
@@ -35,9 +35,11 @@
              v-else-if="detailData.orderStatus==-3">退款完成</div>
       </div>
       <div class="desc">
-        <div class="desc-img"></div>
+        <div class="desc-img">
+          <img :src="detailData.productImage" />
+        </div>
         <div class="desc-info">
-          <div class="text">{{detailData.title}}</div>
+          <div class="text">{{detailData.productTitle}}</div>
           <div class="price">￥{{detailData.payPrice}}</div>
           <div class="inventory">数量：{{detailData.number}}</div>
         </div>
@@ -56,7 +58,7 @@
         </p>
         <p>
           <span>购买时间</span>
-          <span>{{detailData.orderTime | formatDate}}</span>
+          <span>{{detailData.createTime | formatDate}}</span>
         </p>
         <p v-if="detailData.orderStatus!=1 && detailData.status>1">
           <span>发货时间</span>
@@ -78,7 +80,7 @@
     <div class="order-footer order-footer-tuihuo"
          v-else-if="detailData.orderStatus<0"></div>
     <div class="order-footer order-footer-daifahuo"
-         v-else="true">
+         v-else>
       <button @click="show1=true">退款</button>
     </div>
     <!-- 弹框 -->
@@ -141,6 +143,7 @@ export default {
       show1: false, // 退款申请弹框
       orderId: '',
       detailData: {},
+      address: {},
       isSelectedFirst: true
     }
   },
@@ -175,16 +178,27 @@ export default {
           this.$router.push('/order-list')
         }, 3000)
       })
+    },
+    getAddressInfo (id) {
+      let data = {
+        userId: this.getUserId()
+      }
+      this.$http.getAddressList(data).then(resp => {
+        this.address = resp.data.filter(item => item.id === id)[0]
+      })
     }
   },
   mounted () {
     this.setBackName('order-list')
     let userId = this.getUserId()
+    console.log(this.$route.params)
     let { orderId } = this.$route.params
-    let data = { userId, orderId }
+    let { payNumber } = this.$route.params
+    let data = { userId, payNumber }
     this.$http.getOrderDetail(data).then(resp => {
       if (resp && resp.code === 1) {
         this.detailData = resp.data
+        this.getAddressInfo(resp.data.addressId)
       }
     })
   },
@@ -305,6 +319,10 @@ export default {
         width: 1.1rem;
         height: 1.1rem;
         margin-right: 0.2rem;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
       .desc-info {
         .text {

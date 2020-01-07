@@ -4,7 +4,8 @@ import { Toast } from 'vant'
 
 const ajax = axios.create({
   timeout: 1000 * 30,
-  baseURL: 'http://mall.gchating.com'
+  // baseURL: 'http://mall.gchating.com'
+  baseURL: 'http://192.168.0.13:8090'
 })
 
 let toast1 = null
@@ -104,7 +105,7 @@ export const getOrderList = params => {
 
 // 获取订单详情
 export const getOrderDetail = params => {
-  return ajax.post('/content/api/user-order-detail', params)
+  return ajax.post('/content/api/order-detail', params)
 }
 
 // 确认收货
@@ -140,6 +141,11 @@ export const getMerMessage = params => {
 // 商户同意退款
 export const MerAgreeRefund = params => {
   return ajax.post('/content/api/return-sure', params)
+}
+
+// 商户拒绝退款
+export const disagreeRefund = params => {
+  return ajax.post('/content/api/return-refuse', params)
 }
 
 // 商家删除订单

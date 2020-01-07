@@ -181,7 +181,8 @@ export default {
       this.$router.push({
         name: 'order-detail',
         params: {
-          orderId: item.id
+          orderId: item.id,
+          payNumber: item.payNumber
         }
       })
     }

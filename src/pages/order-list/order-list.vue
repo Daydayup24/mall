@@ -231,21 +231,12 @@ export default {
       this.total = 10
       this.getOrderList(data)
     },
-    goOrderDetail (item) {
-      if (!item.status || item.status == 0) return
-      this.$router.push({
-        name: 'order-detail',
-        params: {
-          orderId: item.id
-        }
-      })
-    }
   },
   mounted () {
     this.setBackName(null)
     let timer = null
     timer = setInterval(() => {
-      if (this.getUserId() && this.getMerId()) {
+      if (this.getUserId()) {
         let data = {
           userId: this.getUserId()
         }

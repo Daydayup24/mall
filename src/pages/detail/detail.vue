@@ -47,7 +47,7 @@
         <button class="btn-edit"
                 @click="editShop">编辑商品</button>
         <button class="btn-share"
-                @click="copyUrl">分享商品</button>
+                @click="share">分享商品</button>
       </div>
       <button class="btn-buy"
               v-else-if="!isMer && status==1"
@@ -78,15 +78,15 @@ export default {
   methods: {
     ...mapMutations(['setProductId', 'setBackName']),
     ...mapGetters(['getProductId', 'getMerId', 'getUserId']),
-    copyUrl () {
-      this.$copyText(location.href).then((e) => {
-        // success
-        console.log(e)
-        this.$toast.success('链接已成功复制到粘贴板')
-      }, (err) => {
-        // fail
-        console.log(err)
-      })
+    share () {
+      let u = navigator.userAgent, app = navigator.appVersion
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isAndroid) {
+        window.Android.share(JSON.stringify(this.information))
+      } else if (isiOS) {
+        window.webkit.messageHandlers.share.postMessage(JSON.stringify(this.information))
+      }
     },
     previewImage (index) {
       this.startPosition = index
@@ -126,6 +126,8 @@ export default {
       }
       this.$http.getShopDetail(data).then(resp => {
         let { data } = resp
+        data.shareUrl = `${location.origin}/mall/detail/${data.id}`
+        console.log(data.merId, this.getMerId())
         if (data.merId == this.getMerId()) { //判断是否是该商品商户
           this.isMer = true
         }
@@ -140,14 +142,14 @@ export default {
     this.id = this.$route.params.id
     let timer = null
     timer = setInterval(() => {
-      if (this.getUserId() && this.getMerId()) {
+      if (this.getUserId()) {
         this.getDetail()
         clearInterval(timer)
       }
     }, 200)
     this.setProductId(this.id)
     this.$nextTick(() => {
-      if (this.backName == 'shop-management' || this.backName == 'history') {
+      if (this.backName == 'shop-management' || this.backName == 'history' || this.backName == 'list') {
         this.setBackName(this.backName)
       } else {
         this.setBackName(null)
@@ -165,7 +167,7 @@ export default {
   },
   beforeRouteEnter (to, from, next) {
     next(vm => {
-      if (from.name == 'shop-management' || from.name == 'history') {
+      if (from.name == 'shop-management' || from.name == 'history' || from.name == 'list') {
         vm.backName = from.name
       }
     })
