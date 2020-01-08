@@ -186,8 +186,10 @@ export default {
           userId: this.getUserId(),
         };
         this.$http.checkMer(data).then(resp => {
+          // alert(JSON.stringify(resp.data))
           if(resp && resp.code == 1) {
             this.setMerId(resp.data.merId)
+            // this.setMerId(14)
           }
           this.init();
         })

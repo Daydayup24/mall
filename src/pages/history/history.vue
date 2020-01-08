@@ -88,7 +88,7 @@ export default {
     }
   },
   mounted () {
-    this.setBackName(null)
+    this.setBackName('list')
     let timer = null
     timer = setInterval(() => {
       if (this.getUserId()) {

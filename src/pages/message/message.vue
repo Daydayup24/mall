@@ -67,7 +67,7 @@
               <span @click="disagreeShow=true">拒绝退货</span>
             </div>
           </div>
-          <div class="refund" v-else-if="item.status==-2" @click="show1=true">完成退货</div>
+          <div class="refund" v-else-if="item.status==-2" @click="show1=true"></div>
           <div
             class="refund"
             v-else-if="item.status==-3 || item.status==3"
@@ -105,7 +105,7 @@
     </div>
     <van-overlay :show="disagreeShow" :z-index="10" />
     <!-- 完成退货弹框 -->
-    <div class="dialog-confirm" v-show="show1">
+    <!-- <div class="dialog-confirm" v-show="show1">
       <div class="t-title">
         <button class="close" @click="show1 = false">
           <van-icon name="cross" size=".14rem" />
@@ -117,7 +117,7 @@
       </div>
       <div class="ok-btn" @click="ensureRefundCompleted">确 认</div>
     </div>
-    <van-overlay :show="show1" :z-index="10" />
+    <van-overlay :show="show1" :z-index="10" /> -->
     <!-- 确认弹框 -->
     <div class="dialog-confirm" v-show="show2">
       <div class="t-title">
@@ -178,12 +178,12 @@ export default {
         if (resp && resp.code === 1) {
           let list = resp.data.order;
           this.msgList = page == 1 ? list : this.msgList.concat(list);
-          this.msgList = this.msgList.filter(
-            item =>
-              item.status != 0 ||
-              new Date().valueOf() - item.createTime * 1000 < 10 * 60 * 1000
-          );
-          console.log(this.msgList);
+          // this.msgList = this.msgList.filter(
+          //   item =>
+          //     new Date().valueOf() - item.createTime * 1000 < 10 * 60 * 1000
+          // );
+          this.msgList = this.msgList.filter(item => item.status != 0)
+          console.log(this.msgList)
         }
         let { total } = resp.data;
         if (this.total >= total) {
@@ -206,7 +206,7 @@ export default {
       let data = {
         promoter: 2,
         orderId: this.editOrderId,
-        userId: this.getUserId(),
+        userId: this.getMerId(),
       };
       this.$http.MerAgreeRefund(data).then(resp => {
         let params = {
@@ -244,7 +244,7 @@ export default {
     },
     // 退款回调
     refundCallBack(code) {
-      alert(code);
+      // alert(code);
       if (code === '1') {
         this.$toast.success('同意退货成功');
         let timer = null;

@@ -25,6 +25,7 @@ ajax.interceptors.request.use(
         ...config.data //后台数据接收这块需要以表单形式提交数据，而axios中post默认的提交是json数据,所以这里选用qs模块来处理数据
       })
     }
+    // alert(JSON.stringify(config.data))
     return config
   },
   err => {
@@ -46,6 +47,7 @@ ajax.interceptors.response.use(
     if (data.data.code === 1) {
       return data.data
     }
+    // alert(JSON.stringify(data))
     Toast.fail({
       message: '服务器异常\n请稍后再试',
       forbidClick: true

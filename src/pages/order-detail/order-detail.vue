@@ -1,15 +1,14 @@
 <template>
   <div class="order-detail">
-    <div class="info-img img-daifahuo"
-         v-if="detailData.orderStatus==1"></div>
-    <div class="info-img img-yifahuo"
-         v-else-if="detailData.orderStatus==2"></div>
-    <div class="info-img img-success"
-         v-else></div>
+    <div class="info-img img-daifahuo" v-if="detailData.orderStatus==1"></div>
+    <div class="info-img img-yifahuo" v-else-if="detailData.orderStatus==2"></div>
+    <div class="info-img img-success" v-else></div>
     <div class="user-info">
-      <p class="user">收货人：{{address.name}}</p>
-      <p class="tel">{{address.phone}}</p>
-      <p class="address">地址：{{address.province}} {{address.city}} {{address.area}} {{address.address}}</p>
+      <p class="user">收货人：{{addressInfo.name}}</p>
+      <p class="tel">{{addressInfo.phone}}</p>
+      <p
+        class="address"
+      >地址：{{addressInfo.province}} {{addressInfo.city}} {{addressInfo.area}} {{addressInfo.address}}</p>
     </div>
     <div class="margin"></div>
     <div class="shop-info">
@@ -17,22 +16,15 @@
         <!-- <div class="shop-avatar"></div> -->
         <div class="shop-name">奔跑的蜗牛</div>
         <div class="right">
-          <van-icon name="arrow"
-                    size=".14rem" />
+          <van-icon name="arrow" size=".14rem" />
         </div>
         <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
-        <div class="status status-going"
-             v-if="detailData.orderStatus==1">待发货</div>
-        <div class="status status-going"
-             v-else-if="detailData.orderStatus==2">配送中</div>
-        <div class="status status-success"
-             v-else-if="detailData.orderStatus==3">交易完成</div>
-        <div class="status status-return"
-             v-else-if="detailData.orderStatus==-1">退款申请中</div>
-        <div class="status status-return"
-             v-else-if="detailData.orderStatus==-2">退款中</div>
-        <div class="status status-success"
-             v-else-if="detailData.orderStatus==-3">退款完成</div>
+        <div class="status status-going" v-if="detailData.orderStatus==1">待发货</div>
+        <div class="status status-going" v-else-if="detailData.orderStatus==2">配送中</div>
+        <div class="status status-success" v-else-if="detailData.orderStatus==3">交易完成</div>
+        <div class="status status-return" v-else-if="detailData.orderStatus==-1">退款申请中</div>
+        <div class="status status-return" v-else-if="detailData.orderStatus==-2">退款中</div>
+        <div class="status status-success" v-else-if="detailData.orderStatus==-3">退款完成</div>
       </div>
       <div class="desc">
         <div class="desc-img">
@@ -46,7 +38,11 @@
       </div>
       <div class="true-price">
         <span>实付金额</span>
-        <span>￥<i>{{detailData.payPrice | getParseInt}}</i>.{{detailData.payPrice | getFloat}}</span>
+        <span>
+          ￥
+          <i>{{detailData.payPrice | getParseInt}}</i>
+          .{{detailData.payPrice | getFloat}}
+        </span>
       </div>
     </div>
     <div class="margin"></div>
@@ -72,148 +68,183 @@
     </div>
     <!-- 占位 -->
     <div class="footer-flag"></div>
-    <div class="order-footer order-footer-yiifahuo"
-         v-if="detailData.orderStatus == 2">
+    <div class="order-footer order-footer-yiifahuo" v-if="detailData.orderStatus == 2">
       <button>退款</button>
       <button @click="show=true">确认收货</button>
     </div>
-    <div class="order-footer order-footer-tuihuo"
-         v-else-if="detailData.orderStatus<0"></div>
-    <div class="order-footer order-footer-daifahuo"
-         v-else>
+    <div class="order-footer order-footer-tuihuo" v-else-if="detailData.orderStatus==-2">
+      <button @click="show2=true">确认退款</button>
+    </div>
+    <div class="order-footer" v-else-if="detailData.orderStatus==-1 || detailData.orderStatus==-3"></div>
+    <div class="order-footer order-footer-tuihuo" v-else>
       <button @click="show1=true">退款</button>
     </div>
     <!-- 弹框 -->
-    <div class="dialog-confirm"
-         v-show="show">
+    <div class="dialog-confirm" v-show="show">
       <div class="t-title">
-        <button class="close"
-                @click="show = false">
-          <van-icon name="cross"
-                    size=".14rem" />
+        <button class="close" @click="show = false">
+          <van-icon name="cross" size=".14rem" />
         </button>
         <span>确认收货</span>
       </div>
       <div class="content">
         <p>成功收到商品，并确认收货！</p>
       </div>
-      <div class="ok-btn"
-           @click="ensureTrade">确 认</div>
+      <div class="ok-btn" @click="ensureTrade">确 认</div>
     </div>
     <van-overlay :show="show" />
     <!-- 弹框 -->
-    <div class="dialog-refund"
-         v-show="show1">
+    <div class="dialog-refund" v-show="show1">
       <div class="t-title">
-        <button class="close"
-                @click="show1 = false">
-          <van-icon name="cross"
-                    size=".14rem" />
+        <button class="close" @click="show1 = false">
+          <van-icon name="cross" size=".14rem" />
         </button>
         <span>退款申请</span>
       </div>
       <div class="content">
         <div class="select1">
-          <h3 :class="isSelectedFirst ? 'select' : 'no-select'"
-              @click="isSelectedFirst=true">我要退款（无需退货）</h3>
+          <h3
+            :class="isSelectedFirst ? 'select' : 'no-select'"
+            @click="isSelectedFirst=true"
+          >我要退款（无需退货）</h3>
           <p>没收到货，或与卖家协商同意不用退货只退款</p>
         </div>
         <div class="select2">
-          <h3 :class="isSelectedFirst ? 'no-select' : 'select'"
-              @click="isSelectedFirst=false">我要退货退款</h3>
+          <h3
+            :class="isSelectedFirst ? 'no-select' : 'select'"
+            @click="isSelectedFirst=false"
+          >我要退货退款</h3>
           <p>已收到货，需要退还收到的货物</p>
         </div>
       </div>
-      <div class="ok-btn"
-           @click="returnTrade">确 认</div>
+      <div class="ok-btn" @click="returnTrade">确 认</div>
     </div>
     <van-overlay :show="show1" />
+    <!-- 弹框 -->
+    <div class="dialog-confirm" v-show="show2">
+      <div class="t-title">
+        <button class="close" @click="show2 = false">
+          <van-icon name="cross" size=".14rem" />
+        </button>
+        <span>确认退款</span>
+      </div>
+      <div class="content">
+        <p>成功收到退款，并确认退款</p>
+      </div>
+      <div class="ok-btn" @click="ensureReturn">确 认</div>
+    </div>
+    <van-overlay :show="show2" />
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex';
 
-let timer = null
+let timer = null;
 export default {
-  name: "",
-  data () {
+  name: '',
+  data() {
     return {
       show: false, // 确认收货弹框
       show1: false, // 退款申请弹框
+      show2: false, // 退款确认弹框
       orderId: '',
       detailData: {},
-      address: {},
-      isSelectedFirst: true
-    }
+      addressInfo: {},
+      isSelectedFirst: true,
+    };
   },
   components: {},
   methods: {
     ...mapGetters(['getUserId']),
     ...mapMutations(['setBackName']),
-    ensureTrade () {
-      let data = {
-        userId: this.getUserId(),
-        orderId: this.$route.params.orderId
-      }
-      this.$http.ensureTrade(data).then(resp => {
-        if (resp && resp.code === 1) {
-          this.$toast.success('收货成功')
-          this.show = false
-        }
-      })
-    },
-    returnTrade () {
+    ensureTrade() {
       let data = {
         userId: this.getUserId(),
         orderId: this.$route.params.orderId,
-        remark: this.isSelectedFirst ? '我要退款（无需退货）' : '我要退货退款'
-      }
+      };
+      this.$http.ensureTrade(data).then(resp => {
+        if (resp && resp.code === 1) {
+          this.$toast.success('收货成功');
+          this.show = false;
+        }
+      });
+    },
+    ensureReturn() {
+      let data = {
+        promoter: 1,
+        userId: this.getUserId(),
+        orderId: this.$route.params.orderId,
+      };
+      this.$http.userEnsureRefund(data).then(resp => {
+        if (resp && resp.code === 1) {
+          this.$toast.success('确认退款成功');
+          this.show2 = false;
+          this.$forceUpdate();
+          let timer = null;
+          timer = setTimeout(() => {
+            this.reload();
+            clearTimeout(timer);
+          }, 1000);
+        }
+      });
+    },
+    returnTrade() {
+      let data = {
+        userId: this.getUserId(),
+        orderId: this.$route.params.orderId,
+        remark: this.isSelectedFirst ? '我要退款（无需退货）' : '我要退货退款',
+      };
       this.$http.returnTrade(data).then(resp => {
         if (resp && resp.code === 1) {
-          this.$toast.success('退款申请成功')
+          this.$toast.success('退款申请成功');
         }
-        this.show1 = false
+        this.show1 = false;
         timer = setTimeout(() => {
-          this.$router.push('/order-list')
-        }, 3000)
-      })
+          this.$router.push('/order-list');
+        }, 3000);
+      });
     },
-    getAddressInfo (id) {
+    getAddressInfo(id) {
       let data = {
-        userId: this.getUserId()
-      }
+        userId: this.getUserId(),
+      };
       this.$http.getAddressList(data).then(resp => {
-        this.address = resp.data.filter(item => item.id === id)[0]
-      })
-    }
+        this.addressInfo = resp.data.filter(item => item.id === id)[0];
+        this.$forceUpdate();
+      });
+    },
+    reload() {
+      let userId = this.getUserId();
+      console.log(this.$route.params);
+      let { orderId } = this.$route.params;
+      let { payNumber } = this.$route.params;
+      let data = { userId, payNumber };
+      this.$http.getOrderDetail(data).then(resp => {
+        // alert(JSON.parse(resp))
+        if (resp && resp.code === 1) {
+          this.detailData = resp.data;
+          this.getAddressInfo(resp.data.addressId);
+        }
+      });
+    },
   },
-  mounted () {
-    this.setBackName('order-list')
-    let userId = this.getUserId()
-    console.log(this.$route.params)
-    let { orderId } = this.$route.params
-    let { payNumber } = this.$route.params
-    let data = { userId, payNumber }
-    this.$http.getOrderDetail(data).then(resp => {
-      if (resp && resp.code === 1) {
-        this.detailData = resp.data
-        this.getAddressInfo(resp.data.addressId)
-      }
-    })
+  mounted() {
+    this.setBackName('order-list');
+    this.reload();
   },
-  beforeRouteLeave (to, from, next) {
-    clearTimeout(timer)
-    next()
-  }
-}
+  beforeRouteLeave(to, from, next) {
+    clearTimeout(timer);
+    next();
+  },
+};
 </script>
 
 <style lang="scss" scoped>
 .order-detail {
   height: 100%;
   overflow-x: hidden;
-    overflow-y: scroll;
+  overflow-y: scroll;
   .img-daifahuo {
     background: url(../../assets/images/daifahuo.png) no-repeat center;
   }
@@ -239,7 +270,7 @@ export default {
       line-height: 0.28rem;
     }
     .user::before {
-      content: "";
+      content: '';
       float: left;
       margin-top: 0.08rem;
       margin-right: 0.05rem;
@@ -420,7 +451,8 @@ export default {
       font-weight: 600;
     }
   }
-  .order-footer-daifahuo {
+  .order-footer-daifahuo,
+  .order-footer-tuihuo {
     justify-content: center;
   }
   .order-footer-yiifahuo {
@@ -550,7 +582,7 @@ export default {
       height: 0.21rem;
     }
     h3.select::before {
-      content: "";
+      content: '';
       display: inline-block;
       vertical-align: middle;
       width: 0.18rem;
@@ -561,7 +593,7 @@ export default {
       margin-right: 0.1rem;
     }
     h3.no-select::before {
-      content: "";
+      content: '';
       display: inline-block;
       vertical-align: middle;
       width: 0.18rem;
