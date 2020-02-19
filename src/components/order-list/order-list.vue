@@ -5,14 +5,23 @@
          :key="item.id">
       <div class="item-header">
         <!-- <div class="shop-avatar"></div> -->
-        <div class="shop-name">奔跑的蜗牛</div>
+        <div class="shop-name">{{item.username}}</div>
         <div class="right">
           <van-icon name="arrow"
                     size=".14rem" />
         </div>
         <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
+        <div class="status"
+             v-if="item.agree==2">退货申请失败
+              <em v-if="item.status==1">(待发货)</em>
+              <em v-else-if="item.status==2">(配送中)</em>
+              <em v-else-if="item.status==3"><i>(交易完成)</i><i @click="delOrder(item.id)"></i></em>
+              <em v-else-if="item.status==-1">(退款申请中)</em>
+              <em v-else-if="item.status==-2">(退款中)</em>
+              <em v-else-if="item.status==-3"><i>(退款完成)</i><i @click="delOrder(item.id)"></i></em>
+             </div>
         <div class="status status-loading status-del"
-             v-if="item.status == 0 && !isOverdue(item.createTime)">待支付<span @click="delOrder(item.id)"></span></div>
+             v-else-if="item.status == 0 && !isOverdue(item.createTime)">待支付<span @click="delOrder(item.id)"></span></div>
         <div class="status status-overdue status-del"
              v-else-if="item.status == 0 && isOverdue(item.createTime)">已过期<span @click="delOrder(item.id)"></span></div>
         <div class="status status-loading"
@@ -43,7 +52,8 @@
         </div>
       </div>
       <div class="edit-btn"
-           @click="editOrderId=item.id">
+           @click="editOrderId=item.id"
+           v-if="item.status==1 || item.status==2 || item.status==0 || item.status==-2">
         <div class="refund"
              v-if="item.status==1"
              @click="show1=true">我要退款</div>
@@ -237,7 +247,7 @@ export default {
         font-weight: 600;
         display: flex;
         align-items: center;
-        span {
+        span,i {
           display: inline-block;
           width: 0.26rem;
           height: 0.26rem;

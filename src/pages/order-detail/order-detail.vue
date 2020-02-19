@@ -14,11 +14,12 @@
     <div class="shop-info">
       <div class="item-header">
         <!-- <div class="shop-avatar"></div> -->
-        <div class="shop-name">奔跑的蜗牛</div>
+        <div class="shop-name">{{detailData.username}}</div>
         <div class="right">
           <van-icon name="arrow" size=".14rem" />
         </div>
         <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
+        
         <div class="status status-going" v-if="detailData.orderStatus==1">待发货</div>
         <div class="status status-going" v-else-if="detailData.orderStatus==2">配送中</div>
         <div class="status status-success" v-else-if="detailData.orderStatus==3">交易完成</div>
@@ -56,13 +57,13 @@
           <span>购买时间</span>
           <span>{{detailData.createTime | formatDate}}</span>
         </p>
+        <p v-if="detailData.finishTime">
+          <span>支付时间</span>
+          <span>{{detailData.finishTime | formatDate}}</span>
+        </p>
         <p v-if="detailData.orderStatus!=1 && detailData.status>1">
           <span>发货时间</span>
           <span>{{detailData.sendTime | formatDate}}</span>
-        </p>
-        <p v-if="detailData.finishTime">
-          <span>成交时间</span>
-          <span>{{detailData.finishTime | formatDate}}</span>
         </p>
       </div>
     </div>
@@ -75,7 +76,7 @@
     <div class="order-footer order-footer-tuihuo" v-else-if="detailData.orderStatus==-2">
       <button @click="show2=true">确认退款</button>
     </div>
-    <div class="order-footer" v-else-if="detailData.orderStatus==-1 || detailData.orderStatus==-3"></div>
+    <div class="order-footer" v-else-if="detailData.orderStatus==-1 || detailData.orderStatus==-3" style="display:none"></div>
     <div class="order-footer order-footer-tuihuo" v-else>
       <button @click="show1=true">退款</button>
     </div>
@@ -208,9 +209,11 @@ export default {
     getAddressInfo(id) {
       let data = {
         userId: this.getUserId(),
+        addressId: id
       };
-      this.$http.getAddressList(data).then(resp => {
-        this.addressInfo = resp.data.filter(item => item.id === id)[0];
+      this.$http.getAddressDetail(data).then(resp => {
+        console.log(resp)
+        this.addressInfo = resp.data
         this.$forceUpdate();
       });
     },
@@ -224,6 +227,7 @@ export default {
         // alert(JSON.parse(resp))
         if (resp && resp.code === 1) {
           this.detailData = resp.data;
+          console.log(this.detailData)
           this.getAddressInfo(resp.data.addressId);
         }
       });

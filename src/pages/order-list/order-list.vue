@@ -32,12 +32,14 @@
                       finished-text="没有更多了"
                       @load="onLoading"
                       :immediate-check="false">
-              <order-list :orderList="orderList"
+              <van-pull-refresh v-model="isLoading" @refresh="onRefresh" class="list-warp">
+                <order-list :orderList="orderList"
                           @delOrder="onDelOrder"
                           @ensureTrade="onEnsureTrade"
                           @returnTrade="onReturnTrade"
                           @ensureRefund="onEnsureRefund"
                           ref="listComponent" />
+              </van-pull-refresh>
             </van-list>
           </van-tab>
         </van-tabs>
@@ -57,6 +59,7 @@ export default {
   name: "",
   data () {
     return {
+      isLoading: false,
       searchValue: '',
       active: 0,
       tabTitle: ['全部', '待支付', '待发货', '待收货', '退款订单'],
@@ -88,7 +91,15 @@ export default {
       //   e.preventDefault()
       // })
     },
-    reload () {
+    // 下拉刷新
+    onRefresh() {
+      this.isLoading = true
+      this.reload(() => {
+        this.$toast.success('刷新成功')
+        this.isLoading = false
+      })
+    },
+    reload (cb) {
       let data = {
         userId: this.getUserId(),
         type: this.type
@@ -96,6 +107,7 @@ export default {
       this.page = 1
       this.total = 10
       this.getOrderList(data)
+      cb && cb()
     },
     onDelOrder (orderId) {
       this.$dialog.confirm({

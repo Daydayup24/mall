@@ -1,5 +1,6 @@
 <template>
   <div class="message">
+    <van-pull-refresh v-model="isLoading" @refresh="onRefresh" class="list-warp">
     <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
     <van-list
       v-model="loading"
@@ -57,9 +58,9 @@
             </div>
           </div>
         </div>
-        <div class="edit-btn" @click="getEditInfo(item)">
-          <div class="refund" v-if="item.agree==2"></div>
-          <div class="refund" v-else-if="item.status==1" @click="show2=true">确认发货</div>
+        <div class="edit-btn" @click="getEditInfo(item)" v-if="item.status==1 || item.status==-1 || item.status==-3 || item.status==3">
+          <!-- <div class="refund" v-if="item.agree==2"></div> -->
+          <div class="refund" v-if="item.status==1" @click="show2=true">确认发货</div>
           <div class="refund" v-else-if="item.status==-1">
             <div>
               <span @click="show=true">同意退货</span>
@@ -76,6 +77,7 @@
         </div>
       </div>
     </van-list>
+    </van-pull-refresh>
     <!-- 同意退货弹框 -->
     <div class="dialog-confirm" v-show="show">
       <div class="t-title">
@@ -142,6 +144,7 @@ export default {
   name: '',
   data() {
     return {
+      isLoading: false,
       show: false,
       disagreeShow: false,
       show1: false,
@@ -191,6 +194,17 @@ export default {
         }
         this.loading = false;
       });
+    },
+    onRefresh() {
+      this.isLoading = true
+      this.page = 1
+      this.total = 10
+      let data = {
+        merId: this.getMerId(),
+        page: this.page,
+      }
+      this.getMsgList(data, this.page);
+      this.isLoading = false
     },
     onLoading() {
       this.page = this.page + 1;

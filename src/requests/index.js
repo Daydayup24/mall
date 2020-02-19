@@ -54,6 +54,7 @@ ajax.interceptors.response.use(
     })
   },
   err => {
+    // alert(JSON.stringify(err))
     let timer = setTimeout(() => {
       Toast.fail({
         message: '加载超时',
@@ -173,4 +174,14 @@ export const clearHistory = params => {
 // 获取商品列表
 export const getShopList = params => {
   return ajax.post('/content/api/product-list', params)
+}
+
+// 删除地址
+export const delAddress = params => {
+  return ajax.post('/content/api/address-delete', params)
+}
+
+// 获取地址详情
+export const getAddressDetail = params => {
+  return ajax.post('/content/api/address-detail', params)
 }

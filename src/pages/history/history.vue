@@ -15,7 +15,7 @@
            :key="item.id">
         <div class="item-header">
           <!-- <div class="shop-avatar"></div> -->
-          <div class="shop-name">奔跑的蜗牛</div>
+          <div class="shop-name">{{item.username}}</div>
           <div class="right">
             <van-icon name="arrow"
                       size=".14rem" />
