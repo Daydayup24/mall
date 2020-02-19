@@ -223,6 +223,7 @@ export default {
       let { orderId } = this.$route.params;
       let { payNumber } = this.$route.params;
       let data = { userId, payNumber };
+      // alert(JSON.stringify(data))
       this.$http.getOrderDetail(data).then(resp => {
         // alert(JSON.parse(resp))
         if (resp && resp.code === 1) {
@@ -234,6 +235,9 @@ export default {
     },
   },
   mounted() {
+    // let pos = this.$route.params.pos
+    // if(pos == 'message') this.setBackName('message')
+    // else 
     this.setBackName('order-list');
     this.reload();
   },

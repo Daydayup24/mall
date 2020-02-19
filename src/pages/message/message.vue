@@ -41,7 +41,7 @@
           <div class="status" v-else-if="item.status==3">交易成功</div>
           <div class="status" v-else-if="item.status==-3">退货完成</div>
         </div>
-        <div class="desc">
+        <div class="desc" @click="goOrderDetail(item)">
           <div class="desc-img">
             <img :src="item.productImage" />
           </div>
@@ -172,6 +172,16 @@ export default {
       this.page = 0;
       this.total = 10;
       this.getMsgList(data);
+    },
+    goOrderDetail(item) {
+      // this.$router.push({
+      //   name: 'order-detail',
+      //   params: {
+      //     orderId: item.id,
+      //     payNumber: item.payNumber,
+      //     pos: 'message'
+      //   }
+      // })
     },
     // 获取正在操作的那条消息的数据
     getEditInfo(item) {
