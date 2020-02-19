@@ -43,6 +43,7 @@ ajax.interceptors.request.use(
 // http响应拦截器
 ajax.interceptors.response.use(
   data => {
+    // alert(JSON.stringify(data))
     toast1.clear() // 相应成功关闭toast
     if (data.data.code === 1) {
       return data.data

@@ -131,6 +131,7 @@ export default {
         orderId
       }
       this.$http.ensureTrade(data).then(resp => {
+        // alert(JSON.stringify(resp))
         this.$toast.success('收货成功')
         this.$refs.listComponent[0].show = false
         this.$forceUpdate()
@@ -314,5 +315,8 @@ export default {
   right: 0.2rem;
   font-weight: 400;
   z-index: 5;
+}
+.list-warp {
+  height: 100%;
 }
 </style>

@@ -12,13 +12,13 @@
         </div>
         <!-- // 0 待支付 1-已支付（代发货） -1 退款申请中 -2 退款中 -3 退款交易完成 2 已发货 3 交易成功 99 全部订单 -->
         <div class="status"
-             v-if="item.agree==2">退货申请失败
+             v-if="item.agree==2" style="fontWeight: normal !important"><em>退货申请失败</em>
               <em v-if="item.status==1">(待发货)</em>
-              <em v-else-if="item.status==2">(配送中)</em>
-              <em v-else-if="item.status==3"><i>(交易完成)</i><i @click="delOrder(item.id)"></i></em>
-              <em v-else-if="item.status==-1">(退款申请中)</em>
-              <em v-else-if="item.status==-2">(退款中)</em>
-              <em v-else-if="item.status==-3"><i>(退款完成)</i><i @click="delOrder(item.id)"></i></em>
+              <em v-else-if="item.status==2" style="display:flex;alignItems:center">(配送中)</em>
+              <em v-else-if="item.status==3" style="display:flex;alignItems:center"><em>(交易完成)</em><i @click="delOrder(item.id)"></i></em>
+              <em v-else-if="item.status==-1" style="display:flex;alignItems:center">(退款申请中)</em>
+              <em v-else-if="item.status==-2" style="display:flex;alignItems:center">(退款中)</em>
+              <em v-else-if="item.status==-3" style="display:flex;alignItems:center"><em>(退款完成)</em><i @click="delOrder(item.id)"></i></em>
              </div>
         <div class="status status-loading status-del"
              v-else-if="item.status == 0 && !isOverdue(item.createTime)">待支付<span @click="delOrder(item.id)"></span></div>

@@ -6,8 +6,8 @@ Vue.use(Vuex)
 const state = {
   backToName: '',
   productId: '',
-  userId: '',
-  merId: ''
+  userId: 'i7qOiO__',
+  merId: '17'
 }
 
 const mutations = {

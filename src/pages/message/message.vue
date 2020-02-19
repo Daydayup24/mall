@@ -24,7 +24,11 @@
           <p class="normal" v-else>
             <span>订单</span>
           </p>
-          <div class="status" v-if="item.agree==2">已拒绝</div>
+          <div class="status" v-if="item.agree==2">已拒绝
+            <em v-if="item.status==1 || item.status==-1">待处理</em>
+            <em v-else-if="item.status==2">配送中</em>
+            <em v-else-if="item.status==3">交易成功</em>
+          </div>
           <div class="status" v-else-if="item.status==1 || item.status==-1">
             <span>待处理</span>
           </div>
