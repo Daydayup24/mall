@@ -76,6 +76,7 @@ export default {
   name: '',
   data() {
     return {
+      isLoading: false,
       products: [],
       scanCount: 0,
       loading: false,
@@ -89,6 +90,12 @@ export default {
   methods: {
     ...mapMutations(['setBackName', 'setMerId']),
     ...mapGetters(['getUserId', 'getMerId']),
+    onRefresh() {
+      this.isLoading = true
+      this.init()
+      this.$toast('刷新成功')
+      this.isLoading = false
+    },
     init() {
       let data = { merId: this.getMerId() };
       this.page = 1;

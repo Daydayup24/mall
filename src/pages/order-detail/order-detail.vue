@@ -77,7 +77,7 @@
       <button @click="show2=true">确认退款</button>
     </div>
     <div class="order-footer" v-else-if="detailData.orderStatus==-1 || detailData.orderStatus==-3" style="display:none"></div>
-    <div class="order-footer order-footer-tuihuo" v-else>
+    <div class="order-footer order-footer-tuihuo" v-else-if="detailData.orderStatus!=3">
       <button @click="show1=true">退款</button>
     </div>
     <!-- 弹框 -->
@@ -90,6 +90,7 @@
       </div>
       <div class="content">
         <p>成功收到商品，并确认收货！</p>
+        <p>一旦确认不可再退货！</p>
       </div>
       <div class="ok-btn" @click="ensureTrade">确 认</div>
     </div>
@@ -168,6 +169,10 @@ export default {
         if (resp && resp.code === 1) {
           this.$toast.success('收货成功');
           this.show = false;
+          timer = setTimeout(() => {
+            this.reload();
+            clearTimeout(timer);
+          }, 1000);
         }
       });
     },
@@ -203,7 +208,7 @@ export default {
         this.show1 = false;
         timer = setTimeout(() => {
           this.$router.push('/order-list');
-        }, 3000);
+        }, 1000);
       });
     },
     getAddressInfo(id) {

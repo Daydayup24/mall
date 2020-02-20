@@ -50,7 +50,7 @@ ajax.interceptors.response.use(
     }
     // alert(JSON.stringify(data))
     Toast.fail({
-      message: '服务器异常\n请稍后再试',
+      message: '请求失败\n请稍后再试',
       forbidClick: true
     })
   },

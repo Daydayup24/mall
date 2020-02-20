@@ -89,6 +89,7 @@
       </div>
       <div class="content">
         <p>成功收到商品，并确认收货！</p>
+        <p>一旦确认不可再退货！</p>
       </div>
       <div class="ok-btn"
            @click="ensureTrade">确 认</div>
