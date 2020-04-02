@@ -65,7 +65,7 @@
         </div>
         <div class="refund"
              v-else-if="item.status==0 && !isOverdue(item.createTime)">
-          <button>立即支付</button>
+          <button @click="createPay(item)">立即支付</button>
         </div>
         <div class="refund"
              v-else-if="item.status==-2">
@@ -124,6 +124,7 @@
     </div>
     <van-overlay :show="show1"
                  :z-index="10" />
+                 
     <!-- 弹框 -->
     <div class="dialog-confirm"
          v-show="show2">
@@ -147,6 +148,8 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { mapMutations } from 'vuex';
+
 export default {
   name: "orderList",
   props: {
@@ -166,6 +169,7 @@ export default {
   },
   components: {},
   methods: {
+    ...mapMutations(['setProductId']),
     isOverdue (val) { // 超过10分钟未支付，订单过期
       return new Date().valueOf() - val * 1000 >= 10 * 60 * 1000 ? true : false
     },
@@ -196,8 +200,42 @@ export default {
           payNumber: item.payNumber
         }
       })
-    }
+    },
+    createPay(item){
+      let data = {data:{
+          userId: item.userId,
+          orderNumber: item.orderNumber,
+          money: item.number*item.payPrice,
+          merUserId:item.merUserId
+      }
+      };
+      console.log(JSON.stringify(data))
+     let u = navigator.userAgent,
+            app = navigator.appVersion;
+          let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1;
+          let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
+          if (isAndroid) {
+            window.Android.pay(JSON.stringify(data));
+          } else if (isiOS) {
+            window.webkit.messageHandlers.pay.postMessage(JSON.stringify(data));
+          }
+          // this.$router.push('/payment-success')
+    },
+       // 支付回调
+    payCallBack(code) {
+      if (code === '1') {
+        this.$toast.success('支付成功');
+        this.$router.push('/payment-success');
+      } else {
+        this.$toast.fail('支付失败');
+        return;
+      }
+    },
+  },
+  mounted(){
+    window.payCallBack = this.payCallBack;
   }
+
 }
 </script>
 

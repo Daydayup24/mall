@@ -65,6 +65,10 @@
           <span>发货时间</span>
           <span>{{detailData.sendTime | formatDate}}</span>
         </p>
+        <p v-if="detailData.orderStatus!=1 && detailData.status>1">
+          <span>收货时间</span>
+          <span>{{detailData.receiveTime | formatDate}}</span>
+        </p>
       </div>
     </div>
     <!-- 占位 -->

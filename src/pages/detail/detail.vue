@@ -79,6 +79,8 @@ export default {
     ...mapMutations(['setProductId', 'setBackName', 'setMerId']),
     ...mapGetters(['getProductId', 'getMerId', 'getUserId']),
     share () {
+      // alert(this.information)
+      // console.log(this.information)
       let u = navigator.userAgent, app = navigator.appVersion
       let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1
       let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
@@ -124,6 +126,7 @@ export default {
         userId: this.getUserId(),
         productId: this.$route.params.id
       }
+     
       this.$http.getShopDetail(data).then(resp => {
         let { data } = resp
         data.shareUrl = `${location.origin}/mall/detail/${data.id}`
@@ -132,6 +135,9 @@ export default {
           this.isMer = true
         }
         this.information = data
+        if(this.information.numberType==1){
+          this.information.number=-1
+        }
         this.swiperList = data.image
         this.status = data.status
         this.ready = true

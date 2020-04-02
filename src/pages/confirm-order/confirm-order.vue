@@ -144,8 +144,10 @@ export default {
           let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1;
           let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);
           if (isAndroid) {
+            console.log(JSON.stringify(res))
             window.Android.pay(JSON.stringify(res));
           } else if (isiOS) {
+            console.log(window.webkit.messageHandlers)
             window.webkit.messageHandlers.pay.postMessage(JSON.stringify(res));
           }
           // this.$router.push('/payment-success')

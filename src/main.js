@@ -26,6 +26,10 @@ import {
   PullRefresh 
 } from 'vant'
 
+import Vconsole from 'vconsole';
+const vConsole = new Vconsole();
+Vue.use(vConsole)
+
 Vue.use(Toast)
 Vue.use(Uploader)
 Vue.use(Area)
